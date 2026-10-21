@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tmmin-ats-smart-factory",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "754c383d402ecb2d21afa9a1f32f6145",
+  "assets": { "directory": "public", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
+  "kv_namespaces": [{ "binding": "DB", "id": "7a5636e58cab4bc5892e3adc542991c2" }],
+  "vars": {
+    "AGENT_MODEL": "claude-haiku-5-5",
+    "PLANT_TZ": "Asia/Jakarta"
+  },
+  "observability": { "enabled": true }
+  // Secrets (set in the Cloudflare dashboard or with `wrangler secret put`):
+  //   ANTHROPIC_API_KEY  required for live Haiku agents
+  //   ACCESS_CODE        optional; when set, agent calls need this code
+}

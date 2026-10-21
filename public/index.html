@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrated Smart Factory Platform | TMMIN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script src="/shim.js"></script>
+<style>
+:root{
+  --red:#EB0A1E; --charcoal:#202124; --gray:#3C4043; --white:#FFFFFF; --bg:#F4F5F6; --border:#DADCE0;
+  --blue:#315A78; --green:#27856B; --amber:#E6A23C; --crit:#D93025;
+  --muted:#5F6368; --soft:#F8F9FA; --line:#ECEEF0;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Inter',Arial,sans-serif;background:var(--bg);color:var(--charcoal);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3,h4{font-weight:600}
+a{color:inherit}
+button,input,select,textarea{font-family:inherit;line-height:1.5}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--white);color:var(--charcoal);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn.primary:hover{background:#C9081A}
+.btn.sm{padding:4px 10px;font-size:12px;border-radius:7px}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* Landing */
+.landing{max-width:1100px;margin:0 auto;padding:44px 24px 56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:600}
+.landing h1{font-size:28px;letter-spacing:-.015em;margin:36px 0 6px}
+.hero{background:var(--white);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:12px;padding:22px 24px;margin-top:28px}
+.hero h2{font-size:24px;letter-spacing:-.015em}
+.hero .company{font-size:14px;color:var(--gray);margin-top:4px}
+.brand-sub{display:block;font-size:11.5px;font-weight:400;color:var(--muted)}
+.landing .lead{color:var(--muted);max-width:620px;margin-bottom:28px}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.role-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:10px;color:var(--charcoal);font-size:14px}
+.role-card:hover{border-color:var(--red)}
+.role-top{display:flex;align-items:center;gap:12px}
+.role-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:600;font-size:13px;color:#fff;flex:none}
+.role-card h3{font-size:15.5px}
+.role-pos{font-size:12.5px;color:var(--muted)}
+.role-focus{font-size:13px;color:var(--gray)}
+.role-go{margin-top:auto;padding-top:6px;font-size:13px;font-weight:500;color:var(--red)}
+.role-card.admin{background:var(--soft);border-style:dashed}
+.landing .note{font-size:12.5px;color:var(--muted);margin-top:24px;max-width:720px}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:100vh}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:18px 12px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar .brand{padding:2px 8px 14px}
+.nav-label{font-size:12px;color:var(--muted);padding:14px 10px 6px;font-weight:500}
+.nav a{display:block;padding:7px 10px;border-radius:7px;color:var(--gray);text-decoration:none;font-size:13.5px;cursor:pointer;border-left:3px solid transparent;margin-bottom:1px}
+.nav a:hover{background:var(--soft)}
+.nav a.active{background:#FDECEE;color:var(--red);font-weight:600;border-left-color:var(--red)}
+.side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 28px;position:sticky;top:0;z-index:5}
+.topbar h1{font-size:16px}
+.topbar .crumb{font-size:12px;color:var(--muted)}
+.role-chip{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.role-chip .role-icon{width:26px;height:26px;border-radius:7px;font-size:11px}
+.content{padding:24px 28px 56px;max-width:1440px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.page-head h2{font-size:21px;letter-spacing:-.01em}
+.page-head p{margin-top:4px;color:var(--muted);font-size:13px}
+
+/* Grid and cards */
+.grid{display:grid;gap:16px;margin-bottom:16px}
+.grid.flat{margin-bottom:0}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.g12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;min-width:0;margin-bottom:16px}
+.grid > .card{margin-bottom:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid var(--line);min-height:50px}
+.card-h h3{font-size:14px}
+.card-b{padding:16px 18px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.kpi-label{font-size:12.5px;color:var(--muted)}
+.kpi-value{font-size:26px;font-weight:600;margin-top:2px;letter-spacing:-.01em}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.up{color:var(--green)} .down{color:var(--crit)}
+.sub-h{font-size:13px;font-weight:600;margin-bottom:10px}
+.muted{color:var(--muted)} .small{font-size:12px}
+.mt{margin-top:12px}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:500;white-space:nowrap;background:#EEF0F2;color:var(--gray)}
+.b-red{background:#FCE8E6;color:#B3261E}
+.b-amber{background:#FDF3E1;color:#8A5A10}
+.b-green{background:#E3F2EC;color:#1E6B55}
+.b-blue{background:#E6EEF4;color:var(--blue)}
+.tag{font-size:12px;color:var(--muted)}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .r{text-align:right}
+.tbl select.mini,.tbl input.mini{padding:4px 8px;font-size:12.5px}
+.tbl select.mini{min-width:112px}
+
+/* Lists */
+.list .item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.list .item:first-child{padding-top:0}
+.list .item:last-child{border-bottom:none;padding-bottom:0}
+.list .t{font-weight:500;font-size:13.5px}
+.list .meta{font-size:12px;color:var(--muted);margin-top:2px}
+.list .impact{font-size:12px;color:var(--green);margin-top:3px;font-weight:500}
+.grow{flex:1;min-width:0}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:6px}
+.num{width:22px;height:22px;border-radius:6px;background:var(--soft);border:1px solid var(--border);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+ul.clean{margin:8px 0 0;padding-left:18px} ul.clean li{margin-bottom:4px}
+
+/* Progress & mix */
+.progress{height:8px;background:#EEF0F2;border-radius:99px;overflow:hidden;min-width:60px}
+.progress.lg{height:12px}
+.progress > span{display:block;height:100%;border-radius:99px}
+.mix-row{margin-bottom:12px}
+.mix-row:last-child{margin-bottom:0}
+.mix-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.mix-top span:first-child{font-weight:500}
+.cell-bar{display:flex;align-items:center;gap:8px}
+.cell-bar .progress{flex:1}
+
+/* Line tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.tile b{display:block;font-weight:500;font-size:12.5px}
+.tile .st{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+.tile .st .dot{margin-top:0}
+
+/* Forms */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-size:12.5px;color:var(--gray);font-weight:500}
+input,select,textarea{font-size:13.5px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--charcoal);width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,90,120,.12)}
+input[type=checkbox]{width:auto;accent-color:var(--red)}
+input[type=range]{padding:0;border:none;accent-color:var(--red);box-shadow:none}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline}
+.check{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.check:last-child{border-bottom:none}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filters select,.filters input{width:auto;min-width:150px;padding:6px 10px;font-size:13px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 14px;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--charcoal);border-bottom-color:var(--red);font-weight:500}
+
+/* Work instructions */
+.wi-item{display:block;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:13.5px;color:var(--charcoal);margin-bottom:4px}
+.wi-item:hover{background:var(--soft)}
+.wi-item.active{border-color:var(--border);background:var(--soft)}
+.wi-item .meta{font-size:12px;color:var(--muted)}
+.step{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.step:last-child{border-bottom:none}
+.step input{margin-top:3px}
+.step.done span{color:var(--muted);text-decoration:line-through}
+
+/* Vision */
+.vimg{width:100%;height:auto;display:block;border-radius:8px;background:#E9ECEF}
+
+/* Chat */
+.chat{display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:460px}
+.chat-log{flex:1;overflow-y:auto;padding:18px}
+.msg{max-width:78%;margin-bottom:12px;padding:10px 14px;border-radius:12px;font-size:13.5px}
+.msg.user{margin-left:auto;background:var(--charcoal);color:#fff;border-bottom-right-radius:4px}
+.msg.bot{background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.bot p{margin-bottom:6px} .msg.bot ol{margin:6px 0 8px;padding-left:20px}
+.chat-sug{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 10px}
+.chat-in{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
+
+/* Modal & toast */
+.modal{position:fixed;inset:0;background:rgba(32,33,36,.35);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.hidden{display:none}
+.modal-box{background:var(--white);border-radius:12px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column}
+.modal-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.modal-h h3{font-size:15px}
+.modal-b{padding:16px 18px;overflow-y:auto}
+.modal-f{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--charcoal);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--crit)}
+.loading{display:grid;place-items:center;min-height:100vh;color:var(--muted)}
+.callout{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--gray)}
+
+/* ---------- Color layer ---------- */
+.ric{width:46px;height:46px;border-radius:12px;background:var(--rc);color:#fff;display:grid;place-items:center;flex:none}
+.ric svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ric.sm{width:34px;height:34px;border-radius:9px}
+.ric.sm svg{width:19px;height:19px}
+
+.land{min-height:100vh}
+.land-top{background:radial-gradient(circle at 88% 10%, rgba(49,90,120,.55), transparent 42%),radial-gradient(circle at 10% 120%, rgba(39,133,107,.25), transparent 40%),#202124;border-bottom:3px solid var(--red);padding:30px 0 84px;color:#fff}
+.land-inner{max-width:1100px;margin:0 auto;padding:0 24px}
+.land-top .brand{color:#fff}
+.hero-title{font-size:32px;font-weight:600;letter-spacing:-.02em;margin-top:44px}
+.hero-sub{font-size:15px;color:#C4C9D0;margin-top:6px}
+.land-body{margin-top:-56px;padding-bottom:56px}
+.land-body .select{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.land-body .select h1{font-size:20px;margin:0}
+.land-body .select p{color:var(--muted);font-size:13px;margin-top:3px}
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.role-card{background:var(--tint);border:1px solid rgba(32,33,36,.07);border-top:4px solid var(--rc);border-radius:12px;padding:20px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:14px;color:var(--charcoal);font-size:14px;transition:box-shadow .15s,transform .15s}
+.role-card:hover{box-shadow:0 6px 20px rgba(32,33,36,.10);transform:translateY(-1px)}
+.role-card h3{font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:rgba(255,255,255,.85);border:1px solid rgba(32,33,36,.08);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--gray)}
+.role-go{margin-top:auto;font-size:13px;font-weight:600;color:var(--rc)}
+.land .note{font-size:12.5px;color:var(--muted);margin-top:22px;max-width:720px}
+
+.sidebar{background:#202124;border-right:none;color:#E8EAED}
+.sidebar .brand{color:#fff}
+.sidebar .brand-sub{color:#9AA0A6}
+.side-role{display:flex;gap:10px;align-items:center;background:#3C4043;border-radius:10px;padding:10px;margin:2px 2px 4px;font-size:13px;font-weight:500;color:#fff;line-height:1.3}
+.nav-label{color:#9AA0A6}
+.nav a{color:#C4C9D0}
+.nav a:hover{background:#3C4043;color:#fff}
+.nav a.active{background:rgba(235,10,30,.20);color:#fff;border-left-color:var(--red)}
+.side-foot{border-top-color:#3C4043;color:#9AA0A6}
+.topbar{border-top:3px solid var(--rc)}
+.page-head{background:var(--tint);border:1px solid rgba(32,33,36,.06);border-left:4px solid var(--rc);border-radius:12px;padding:16px 20px;align-items:center}
+.ph-left{display:flex;gap:14px;align-items:center}
+.card-h{background:#F8F9FA;border-radius:12px 12px 0 0}
+.card-h h3{display:flex;align-items:center;gap:8px}
+.card-h h3::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--rc,var(--red))}
+.kpi{border-top:3px solid var(--k,var(--blue))}
+.grid > .kpi:nth-child(4n+1){--k:#315A78}
+.grid > .kpi:nth-child(4n+2){--k:#27856B}
+.grid > .kpi:nth-child(4n+3){--k:#E6A23C}
+.grid > .kpi:nth-child(4n+4){--k:#3C4043}
+
+@media (prefers-reduced-motion: reduce){.toast{transition:none}}
+@media (max-width:1150px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3,.g21,.g12{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  .g2{grid-template-columns:1fr}
+  .content{padding:18px 16px 40px}
+  .topbar{padding:0 16px}
+  .form-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading">Loading…</div></div>
+
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="modal-h"><h3 id="mTitle"></h3><button class="btn ghost sm" onclick="closeModal()" aria-label="Close">✕</button></div>
+    <div class="modal-b" id="mBody"></div>
+    <div class="modal-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="mSave" onclick="modalOk()">Save</button></div>
+  </div>
+</div>
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   Smart Factory Portal — client
+   All figures are simulated. Role selection simulates access control only.
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const PT = ['ICE', 'HEV', 'PHEV', 'BEV'];
+const PT_COLOR = { ICE: '#6B7A90', HEV: '#27856B', PHEV: '#E6A23C', BEV: '#315A78' };
+const C = { red: '#EB0A1E', charcoal: '#202124', gray: '#3C4043', blue: '#315A78', green: '#27856B', amber: '#E6A23C', crit: '#D93025', muted: '#5F6368', grid: '#ECEEF0', light: '#C4C9D0' };
+const COLLECTIONS = ['users','permissions','masterData','alertConfig','workInstructions','simSettings','alerts','workOrders','capa','changeRequests','engChanges','inspections','defects','aiRecs','materialFlow','audit'];
+
+let DB = null, ROLE = null, PAGE = 'overview', charts = {}, afterQ = [], modalSave = null;
+const STATE = {
+  wiSel: {}, wiChecks: {}, simMix: null, chat: [],
+  lab: { line: 'L02', ct: 5, av: 2, df: 20 },
+  trace: { line: '', cat: '', q: '' },
+  alertFilter: 'Active', masterTab: 'lines', permRole: 'production', rcaMachine: 'M-102', auditQ: ''
+};
+
+const ICONS = {
+  production: '<svg viewBox="0 0 24 24"><path d="M3 20V9l5 3V9l5 3V6l8 4v10z"/><path d="M7 16h2M11.5 16h2M16 16h2"/></svg>',
+  engineering: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3.8 17.2a1.6 1.6 0 0 0 2.3 2.3l5.7-5.7a4 4 0 0 0 5.2-5.2l-2.6 2.6-2.2-.6-.6-2.2z"/></svg>',
+  quality: '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>',
+  logistics: '<svg viewBox="0 0 24 24"><path d="M2.5 6.5h11v10h-11zM13.5 10h4.2l3 3.2v3.3h-7.2"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
+  plant: '<svg viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M6 20v-6M11 20V9M16 20v-9M21 4l-5 5-4-3-8 6"/></svg>',
+  admin: '<svg viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>'
+};
+const ROLES = {
+  production: { name: 'Production & Operations', ico: 'PO', color: '#315A78', tint: '#EAF0F5', positions: 'Line Operator, Team Leader, Production Supervisor', focus: 'Run production, monitor line performance and handle process abnormalities.' },
+  engineering: { name: 'Engineering & Maintenance', ico: 'EM', color: '#3C4043', tint: '#EEEFF1', positions: 'Maintenance Technician, Maintenance Engineer, Process Engineer', focus: 'Machine condition, downtime, troubleshooting, preventive maintenance and line flexibility.' },
+  quality: { name: 'Quality Control & Assurance', ico: 'QA', color: '#27856B', tint: '#E6F2EE', positions: 'Quality Inspector, QC, Quality Engineer', focus: 'Inspection, defect detection, root cause analysis and corrective action.' },
+  logistics: { name: 'Logistics & Production Planning', ico: 'LP', color: '#B87A1A', tint: '#FAF1E3', positions: 'Material Handler, Warehouse Staff, Production Planner', focus: 'Material availability, inventory, demand forecasting and ICE/HEV/PHEV/BEV allocation.' },
+  plant: { name: 'Plant Management', ico: 'PM', color: '#EB0A1E', tint: '#FDEDEE', positions: 'Plant Manager, Operations Manager', focus: 'Overall plant performance, priority decisions, change approvals and AI recommendation review.' },
+  admin: { name: 'System Administrator', ico: 'SA', color: '#202124', tint: '#ECEDEF', positions: 'System Admin (non-operational)', focus: 'Users, access, master data, system configuration and audit.' }
+};
+
+const FEATURES = {
+  production: [['prod-monitor','Production Monitoring'],['ai-ops','AI Operational Monitoring'],['work-instr','Digital Work Instructions'],['alert-report','Alert & Action Reporting'],['chatbot','AI Chatbot']],
+  engineering: [['equip-health','Equipment Health Monitoring'],['predictive','Predictive Maintenance'],['work-orders','Maintenance Work Orders'],['rca','Root Cause Analysis'],['eng-change','Engineering Change Management'],['sim-lab','Simulation Lab'],['tech-wi','Technical Work Instructions']],
+  quality: [['inspection','Quality Inspection'],['ai-vision','AI Vision & Defect Monitoring'],['traceability','Defect Traceability'],['q-analytics','Quality Analytics'],['q-rca','AI Root Cause Analysis'],['capa','Corrective Action Tracking'],['q-alerts','Quality Alerts']],
+  logistics: [['inventory','Material & Inventory Monitoring'],['material-flow','Material Flow Tracking'],['demand','AI Demand Forecasting'],['planning','Production Planning'],['optimizer','AI Production Stream Optimizer'],['mix-sim','Production Mix Simulator'],['feasibility','Feasibility Check'],['plan-request','Plan Approval Request']],
+  plant: [['exec','Executive Overview'],['cross-intel','Cross-Functional Intelligence'],['crit-alerts','Critical Alerts'],['ai-recs','AI Recommendations'],['stream-approval','Production Stream Approval'],['sim-results','Simulation Results'],['ci','Continuous Improvement']],
+  admin: [['users','User Management'],['permissions','Role & Permissions'],['master','Master Data'],['alert-config','Alert Configuration'],['wi-mgmt','Work Instruction Management'],['sim-settings','Forecast & Simulation Settings'],['audit','Audit Trail'],['data-mgmt','Data Management'],['sys-status','System Status']]
+};
+
+/* ---------- Utilities ---------- */
+const h = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const js = s => "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+const fmt = (n, d = 0) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const val = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+const sum = a => a.reduce((x, y) => x + y, 0);
+function nowHM() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function nextId(list, prefix, start, pad) {
+  const nums = list.map(x => parseInt(String(x.id).replace(/\D/g, ''), 10)).filter(n => !isNaN(n));
+  return prefix + String(Math.max(start, ...nums) + 1).padStart(pad || 0, '0');
+}
+function fmtTime(iso) { const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+function hasGAS() { return typeof google !== 'undefined' && google.script && google.script.run; }
+function userLabel() { return 'Demo user (' + ROLES[ROLE].name + ')'; }
+
+function toast(m, type) {
+  const t = $('#toast'); t.textContent = m; t.className = 'toast show ' + (type || '');
+  clearTimeout(t._t); t._t = setTimeout(() => { t.className = 'toast'; }, 2600);
+}
+
+/** Save a collection to Script Properties and record an audit entry. */
+function persist(key, action, detail) {
+  const audit = action ? { user: userLabel(), role: ROLES[ROLE].name, action, detail: String(detail || '') } : null;
+  if (audit) DB.audit = [Object.assign({ time: new Date().toISOString() }, audit)].concat(DB.audit || []).slice(0, 60);
+  if (!hasGAS()) return;
+  google.script.run
+    .withFailureHandler(e => toast('Could not save: ' + e.message, 'err'))
+    .saveCollection(key, DB[key], audit);
+}
+
+/* ---------- Permissions (simulated access control) ---------- */
+function allowedFeatures(role) {
+  const all = FEATURES[role];
+  if (role === 'admin') return all;
+  const p = DB.permissions && DB.permissions[role];
+  return p && p.features ? all.filter(f => p.features.includes(f[0])) : all;
+}
+function can(action) {
+  if (ROLE === 'admin') return true;
+  const p = DB.permissions && DB.permissions[ROLE];
+  if (p && p.actions) return !!p.actions[action];
+  return action === 'approve' ? ROLE === 'plant' : true;
+}
+function navList() {
+  const f = allowedFeatures(ROLE).concat([["agents", "AI Agent Team"]]);
+  return ROLE === "admin" ? f : [["overview", "Plant Overview"], ["dashboard", "My Dashboard"]].concat(f);
+}
+function allowed(p) { return navList().some(x => x[0] === p); }
+function titleOf(p) { const f = navList().find(x => x[0] === p); return f ? f[1] : ''; }
+
+/* ---------- Boot, landing, shell ---------- */
+function boot() {
+  if (window.Chart) {
+    Chart.defaults.font.family = "'Inter', Arial, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = C.muted;
+  }
+  if (!hasGAS()) {
+    $('#root').innerHTML = '<div class="loading"><div class="callout">Open this page from the deployed Apps Script web app URL to load data.</div></div>';
+    return;
+  }
+  google.script.run
+    .withSuccessHandler(d => { DB = d; normalize(); renderLanding(); })
+    .withFailureHandler(e => { $('#root').innerHTML = '<div class="loading"><div class="callout">Could not load data: ' + h(e.message) + '</div></div>'; })
+    .getAppData();
+}
+function normalize() {
+  DB.permissions = DB.permissions && !Array.isArray(DB.permissions) ? DB.permissions : {};
+  DB.audit = DB.audit || [];
+  STATE.simMix = Object.assign({}, DB.simSettings.currentMix);
+}
+
+function renderLanding() {
+  ROLE = null;
+  Object.values(charts).forEach(c => c.destroy()); charts = {};
+  $('#root').innerHTML = `
+  <div class="land">
+    <div class="land-top"><div class="land-inner">
+      <div class="brand"><div class="brand-mark">SF</div>TMMIN Smart Factory</div>
+      <div class="hero-title">Integrated Smart Factory Platform</div>
+      <div class="hero-sub">for PT Toyota Motor Manufacturing Indonesia</div>
+    </div></div>
+    <div class="land-inner land-body">
+      <div class="select"><div><h1>Select your role</h1><p>Each role opens its own dashboard and tools.</p></div><span class="badge b-blue">Simulated data</span></div>
+      <div class="role-grid">
+        ${Object.entries(ROLES).map(([k, r]) => `
+          <button class="role-card" style="--rc:${r.color};--tint:${r.tint}" onclick="enter('${k}')">
+            <div class="ric">${ICONS[k]}</div>
+            <h3>${r.name}</h3>
+            <div class="chips">${r.positions.split(', ').map(x => `<span class="chip">${x}</span>`).join('')}</div>
+            <div class="role-go">Open workspace</div>
+          </button>`).join('')}
+      </div>
+      <p class="note">Demo prototype. Choosing a role simulates access control and is not a security mechanism. All figures are simulated for UI demonstration and are not actual TMMIN KPIs.</p>
+    </div>
+  </div>`;
+  window.scrollTo(0, 0);
+}
+
+function enter(role) {
+  ROLE = role;
+  const r = ROLES[role];
+  const items = navList();
+  const navHtml = role === 'admin'
+    ? `<div class="nav-label">Administration</div>${items.map(navLink).join('')}`
+    : `<div class="nav-label">Dashboards</div>${items.slice(0, 2).map(navLink).join('')}
+       <div class="nav-label">Tools</div>${items.slice(2).map(navLink).join('')}`;
+  $('#root').innerHTML = `
+  <div class="shell" style="--rc:${r.color};--tint:${r.tint}">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">SF</div><div>Smart Factory Platform<span class="brand-sub">PT Toyota Motor Manufacturing Indonesia</span></div></div>
+      <div class="side-role"><div class="ric sm">${ICONS[role]}</div><div>${r.name}</div></div>
+      <nav class="nav">${navHtml}</nav>
+      <div class="side-foot">Signed in as demo user<br>${r.name}</div>
+    </aside>
+    <div>
+      <header class="topbar">
+        <div><div class="crumb">${h(DB.plant.name)}, ${h(DB.plant.shift)}</div><h1 id="pageTitle">${r.name}</h1></div>
+        <div class="row">
+          <span class="badge b-blue">Simulated data</span>
+          <div class="ric sm">${ICONS[role]}</div>
+          <button class="btn sm" onclick="renderLanding()">Switch role</button>
+        </div>
+      </header>
+      <main class="content" id="content"></main>
+    </div>
+  </div>`;
+  go(items[0][0]);
+}
+function navLink(x) { return `<a data-p="${x[0]}" onclick="go('${x[0]}')">${x[1]}</a>`; }
+
+function go(p, keepScroll) {
+  if (!allowed(p)) p = navList()[0][0];
+  PAGE = p;
+  Object.values(charts).forEach(c => c.destroy()); charts = {};
+  afterQ = [];
+  const y = window.scrollY;
+  $('#content').innerHTML = PAGES[p]();
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.p === p));
+  const q = afterQ; afterQ = []; q.forEach(f => f());
+  window.scrollTo(0, keepScroll ? y : 0);
+}
+function refresh() { go(PAGE, true); }
+
+/* ---------- Modal ---------- */
+function openModal(title, body, onSave, saveLabel) {
+  $('#mTitle').textContent = title;
+  $('#mBody').innerHTML = body;
+  modalSave = onSave || null;
+  $('#mSave').textContent = saveLabel || 'Save';
+  $('#mSave').style.display = onSave ? '' : 'none';
+  $('#modal').classList.remove('hidden');
+}
+function closeModal() { $('#modal').classList.add('hidden'); modalSave = null; }
+function modalOk() { if (modalSave && modalSave() === false) return; closeModal(); }
+
+/* ---------- UI building blocks ---------- */
+function pageHead(title, desc, right) {
+  return `<div class="page-head"><div class="ph-left">${ROLE ? `<div class="ric">${ICONS[ROLE]}</div>` : ''}<div><h2>${title}</h2>${desc ? `<p>${desc}</p>` : ''}</div></div>${right ? `<div class="row">${right}</div>` : ''}</div>`;
+}
+function kpi(label, value, sub) {
+  const s = sub ? (String(sub).startsWith('<') ? sub : `<div class="kpi-sub">${sub}</div>`) : '';
+  return `<div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div>${s}</div>`;
+}
+function kpiRow(items) { return `<div class="grid g4">${items.join('')}</div>`; }
+function delta(cur, prev, unit, higherBetter) {
+  const d = +(cur - prev).toFixed(1);
+  if (!d) return '<div class="kpi-sub">No change vs. yesterday</div>';
+  const good = higherBetter ? d > 0 : d < 0;
+  return `<div class="kpi-sub ${good ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d)}${unit} vs. yesterday</div>`;
+}
+function card(title, body, opt) {
+  opt = opt || {};
+  return `<section class="card">${title ? `<div class="card-h"><h3>${title}</h3>${opt.right || ''}</div>` : ''}<div class="card-b">${body}</div></section>`;
+}
+function tone(t) {
+  const map = {
+    red: ['Critical', 'Fail', 'Rejected', 'Shortage', 'Down', 'Off Track', 'Overdue', 'Delayed', 'Not feasible'],
+    amber: ['High', 'In Progress', 'Waiting Parts', 'Low Stock', 'At Risk', 'Engineering Review', 'Awaiting Approval', 'Pending Review', 'Changeover', 'Under Review', 'Verification', 'Warning', 'Requested', 'Deferred', 'Bottleneck', 'Abnormality'],
+    green: ['Resolved', 'Completed', 'Pass', 'Approved', 'OK', 'Running', 'Active', 'On Track', 'Closed', 'Confirmed', 'Delivered', 'Accepted', 'Feasible', 'Effective', 'Enabled'],
+    blue: ['Medium', 'Open', 'In Transit', 'New', 'Proposed', 'Visual', 'Simulated']
+  };
+  for (const k in map) if (map[k].includes(t)) return 'b-' + k;
+  return '';
+}
+function badge(t) { return `<span class="badge ${tone(t)}">${h(t)}</span>`; }
+function table(cols, rows, emptyMsg) {
+  if (!rows.length) return empty(emptyMsg || 'No records yet.');
+  return `<div class="tbl-wrap"><table class="tbl"><thead><tr>${cols.map(c => `<th class="${c[2] || ''}">${c[0]}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${cols.map(c => `<td class="${c[2] || ''}">${c[1](r)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function empty(m) { return `<div class="empty">${m}</div>`; }
+function progress(pct, color, lg) {
+  return `<div class="progress${lg ? ' lg' : ''}"><span style="width:${Math.max(0, Math.min(100, pct))}%;background:${color || C.blue}"></span></div>`;
+}
+function cellBar(pct, label, color) { return `<div class="cell-bar">${progress(pct, color)}<span>${label}</span></div>`; }
+function field(label, input) { return `<div class="field"><label>${label}</label>${input}</div>`; }
+function sel(id, opts, v, extra) {
+  return `<select id="${id}" ${extra || ''}>${opts.map(o => { const a = Array.isArray(o) ? o : [o, o]; return `<option value="${h(a[0])}" ${String(a[0]) === String(v) ? 'selected' : ''}>${h(a[1])}</option>`; }).join('')}</select>`;
+}
+function inp(id, v, type, extra) { return `<input id="${id}" type="${type || 'text'}" value="${h(v == null ? '' : v)}" ${extra || ''}>`; }
+function ta(id, v, rows) { return `<textarea id="${id}" rows="${rows || 3}">${h(v || '')}</textarea>`; }
+function slider(label, v, min, max, step, unit, onInput) {
+  return `<div class="field"><div class="slider-top"><label>${label}</label><b class="sval">${v}${unit}</b></div>
+    <input type="range" min="${min}" max="${max}" step="${step}" value="${v}" oninput="this.parentNode.querySelector('.sval').textContent=this.value+'${unit}';${onInput}"></div>`;
+}
+function sevDot(s) { return { Critical: C.crit, High: C.amber, Medium: C.blue, Low: C.light }[s] || C.light; }
+function riskColor(r) { return r >= 70 ? C.crit : r >= 50 ? C.amber : C.green; }
+
+/* ---------- Charts ---------- */
+function merge(a, b) {
+  for (const k in b) {
+    if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k] && typeof a[k] === 'object') merge(a[k], b[k]);
+    else a[k] = b[k];
+  }
+  return a;
+}
+function chartOpts(extra) {
+  return merge({
+    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, padding: 16 } }, tooltip: { backgroundColor: C.charcoal, padding: 10, cornerRadius: 6 } },
+    scales: { x: { grid: { display: false }, border: { color: '#DADCE0' } }, y: { beginAtZero: true, grid: { color: C.grid }, border: { display: false } } }
+  }, extra || {});
+}
+function chartBox(id, height) { return `<div style="position:relative;height:${height || 260}px"><canvas id="${id}" role="img" aria-label="Chart"></canvas></div>`; }
+function drawChart(id, type, data, extra) {
+  const el = document.getElementById(id);
+  if (!el || !window.Chart) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(el, { type, data, options: chartOpts(extra) });
+}
+function mkChart(id, type, data, extra) { afterQ.push(() => drawChart(id, type, data, extra)); }
+function ds(label, data, color, extra) {
+  return Object.assign({ label, data, borderColor: color, backgroundColor: color, borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: .3 }, extra || {});
+}
+function barDs(label, data, color, extra) { return Object.assign({ label, data, backgroundColor: color, borderRadius: 4, maxBarThickness: 34 }, extra || {}); }
+const pctTick = { ticks: { callback: v => v + '%' } };
+
+function trendChart(id, keys) {
+  const t = DB.trend;
+  const map = { oee: ['OEE', C.blue], attainment: ['Production attainment', C.green], fpy: ['First pass yield', C.gray] };
+  mkChart(id, 'line', { labels: t.labels, datasets: keys.map(k => ds(map[k][0], t[k], map[k][1])) },
+    { scales: { y: Object.assign({ beginAtZero: false, suggestedMin: 76, suggestedMax: 100 }, pctTick) } });
+}
+function lineCompareChart(id) {
+  const L = DB.lines.slice().sort((a, b) => b.oee - a.oee);
+  mkChart(id, 'bar', { labels: L.map(l => l.name), datasets: [barDs('OEE', L.map(l => l.oee), L.map(l => l.oee >= 80 ? C.blue : l.oee >= 70 ? C.amber : C.crit), { maxBarThickness: 16 })] },
+    { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: Object.assign({ min: 50, max: 100, grid: { color: C.grid, display: true } }, pctTick), y: { grid: { display: false } } } });
+}
+function hourlyChart(id) {
+  const hr = DB.hourly;
+  mkChart(id, 'bar', { labels: hr.labels, datasets: [
+    ds('Target', hr.target, C.charcoal, { type: 'line', borderDash: [5, 4], pointRadius: 0, borderWidth: 1.5, tension: 0 }),
+    barDs('Actual', hr.actual, C.blue)
+  ] }, { scales: { y: { suggestedMin: 0 } } });
+}
+
+/* ---------- Domain helpers ---------- */
+function M() {
+  const hr = DB.hourly, open = DB.alerts.filter(a => a.status !== 'Resolved'), s = DB.simSettings;
+  return {
+    output: sum(hr.actual), target: sum(hr.target),
+    attainment: sum(hr.actual) / sum(hr.target) * 100,
+    running: DB.lines.filter(l => l.status === 'Running').length, totalLines: DB.lines.length,
+    openAlerts: open.length, critical: open.filter(a => a.severity === 'Critical').length,
+    openWO: DB.workOrders.filter(w => w.status !== 'Completed').length,
+    highRisk: DB.equipment.filter(e => e.risk >= 70).length,
+    downtime: sum(DB.equipment.map(e => e.downtime)),
+    openCA: DB.capa.filter(c => c.status !== 'Closed').length,
+    shortages: DB.materials.filter(m => cover(m) < 2).length,
+    plansAwaiting: DB.changeRequests.filter(r => ['Engineering Review', 'Awaiting Approval'].includes(r.status)).length,
+    forecast: forecastMonths(1)[0].total,
+    util: s.plannedVolume / s.monthlyCapacity * 100
+  };
+}
+function cover(m) { return m.stock / m.daily; }
+function stockStatus(m) { const c = cover(m); return c < 2 ? 'Shortage' : c < 4 ? 'Low Stock' : 'OK'; }
+function openAlerts() { return DB.alerts.filter(a => a.status !== 'Resolved'); }
+const SEV_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+function bySeverity(a, b) { return SEV_ORDER[a.severity] - SEV_ORDER[b.severity]; }
+function topRecs(n) {
+  const o = { High: 0, Medium: 1, Low: 2 };
+  return DB.aiRecs.filter(r => r.status !== 'Deferred').sort((a, b) => o[a.priority] - o[b.priority]).slice(0, n);
+}
+function mixText(m) { return PT.map(p => m[p]).join(' / '); }
+
+function forecastMonths(n) {
+  const s = DB.simSettings, out = [], d = new Date();
+  for (let i = 0; i < n; i++) {
+    const m = new Date(d.getFullYear(), d.getMonth() + 1 + i, 1);
+    const row = { label: m.toLocaleString('en-US', { month: 'short', year: '2-digit' }) };
+    PT.forEach(p => { row[p] = Math.round(s.baseDemand[p] * Math.pow(1 + s.growth[p] / 100, i)); });
+    row.total = sum(PT.map(p => row[p]));
+    out.push(row);
+  }
+  return out;
+}
+function evaluateMix(mix, volume) {
+  const s = DB.simSettings; volume = volume || s.plannedVolume;
+  const units = {}; PT.forEach(p => { units[p] = Math.round(volume * mix[p] / 100); });
+  const fc = forecastMonths(1)[0];
+  const coverage = sum(PT.map(p => Math.min(units[p], fc[p]))) / fc.total * 100;
+  const modules = sum(PT.map(p => units[p] * (s.batteryModulesPerUnit[p] || 0)));
+  const moduleGap = modules - s.batterySupplyPerMonth;
+  const mods = PT.filter(p => s.maxShare[p] != null && mix[p] > s.maxShare[p]);
+  const lead = 2 + (moduleGap > 0 ? 3 : 0) + (mods.length ? 8 : 0);
+  return { units, fc, coverage, util: volume / s.monthlyCapacity * 100, modules, moduleGap, mods, lead, total: sum(PT.map(p => +mix[p] || 0)) };
+}
+function capacityIssues() {
+  const s = DB.simSettings, out = [];
+  forecastMonths(6).forEach(m => {
+    if (m.total > s.monthlyCapacity) out.push({ title: `${m.label}: total demand ${fmt(m.total)} exceeds capacity ${fmt(s.monthlyCapacity)}`, meta: 'Plant capacity' });
+    Object.keys(s.maxShare).forEach(p => {
+      const limit = Math.round(s.maxShare[p] / 100 * s.plannedVolume);
+      if (m[p] > limit) out.push({ title: `${m.label}: ${p} demand ${fmt(m[p])} above line limit ${fmt(limit)}`, meta: `${p} limited to ${s.maxShare[p]}% of planned volume without equipment changes` });
+    });
+  });
+  return out;
+}
+
+/* ---------- Shared components ---------- */
+function alertList(items) {
+  if (!items.length) return empty('No active alerts.');
+  return `<div class="list">${items.map(a => `<div class="item"><span class="dot" style="background:${sevDot(a.severity)}"></span>
+    <div class="grow"><div class="t">${h(a.title)}</div><div class="meta">${h(a.line)}, ${h(a.type)}, ${h(a.time)}. Owner: ${h(a.owner)}</div></div>${badge(a.status)}</div>`).join('')}</div>`;
+}
+function recList(recs) {
+  if (!recs.length) return empty('No recommendations right now.');
+  return `<div class="list">${recs.map((r, i) => `<div class="item"><div class="num">${i + 1}</div>
+    <div class="grow"><div class="t">${h(r.title)}</div><div class="meta">${h(r.evidence)}</div><div class="impact">${h(r.impact)}</div></div>${badge(r.priority)}</div>`).join('')}</div>`;
+}
+function simpleList(items) {
+  if (!items.length) return empty('Nothing to show.');
+  return `<div class="list">${items.map(i => `<div class="item">${i.dot ? `<span class="dot" style="background:${i.dot}"></span>` : ''}<div class="grow"><div class="t">${i.title}</div>${i.meta ? `<div class="meta">${i.meta}</div>` : ''}</div>${i.right || ''}</div>`).join('')}</div>`;
+}
+function mixBars(mix) {
+  return `<div>${PT.map(p => `<div class="mix-row"><div class="mix-top"><span>${p}</span><span>${mix[p]}%</span></div>${progress(mix[p], PT_COLOR[p], true)}</div>`).join('')}</div>`;
+}
+function lineTiles() {
+  const col = { Running: C.green, Down: C.crit, Changeover: C.amber, Idle: C.light };
+  return `<div class="tiles">${DB.lines.map(l => `<div class="tile"><b>${h(l.name)}</b><div class="st"><span class="dot" style="background:${col[l.status] || C.light}"></span>${h(l.status)}, ${fmt(l.actual / l.target * 100, 0)}%</div></div>`).join('')}</div>`;
+}
+function streamSummary() {
+  const s = DB.simSettings, cur = s.currentMix, rec = s.recommendedMix;
+  const diffs = PT.filter(p => rec[p] !== cur[p]).map(p => `${p} ${rec[p] > cur[p] ? '+' : ''}${rec[p] - cur[p]} pt`);
+  const ec = evaluateMix(cur), er = evaluateMix(rec);
+  const pending = DB.changeRequests.find(r => r.status === 'Awaiting Approval');
+  let btn = '';
+  if (allowed('stream-approval')) btn = `<button class="btn sm" onclick="go('stream-approval')">Review requests</button>`;
+  else if (allowed('optimizer')) btn = `<button class="btn sm" onclick="go('optimizer')">Open optimizer</button>`;
+  const reco = diffs.length
+    ? `<p>Adjust the mix: <b>${diffs.join(', ')}</b>.</p>
+       <ul class="clean"><li>Demand coverage ${fmt(ec.coverage, 1)}% to <b>${fmt(er.coverage, 1)}%</b></li>
+       <li>Battery modules ${fmt(er.modules)} per month (supply ${fmt(s.batterySupplyPerMonth)})</li>
+       <li>Estimated lead time ${er.lead} weeks</li></ul>
+       ${pending ? `<p class="muted small mt">${h(pending.id)} is awaiting management approval.</p>` : ''}`
+    : '<p>The current allocation matches the recommendation. No change needed.</p>';
+  return card('Production stream summary', `<div class="grid g3 flat">
+    <div><div class="sub-h">Current allocation</div>${mixBars(cur)}</div>
+    <div><div class="sub-h">AI recommended allocation</div>${mixBars(rec)}</div>
+    <div><div class="sub-h">Recommendation</div>${reco}</div></div>`, { right: btn });
+}
+
+/* =========================================================
+   Main dashboard and role dashboards
+   ========================================================= */
+function pgOverview() {
+  const k = DB.kpis, m = M();
+  let html = pageHead('Plant overview', `${h(DB.plant.name)}. ${h(DB.plant.shift)}. ${h(DB.plant.date)}`);
+  html += kpiRow([
+    kpi('OEE', k.oee + '%', delta(k.oee, k.oeePrev, ' pt', true)),
+    kpi('Production attainment', fmt(m.attainment, 1) + '%', delta(+m.attainment.toFixed(1), DB.trend.attainment[5], ' pt', true)),
+    kpi('First pass yield', k.fpy + '%', delta(k.fpy, k.fpyPrev, ' pt', true)),
+    kpi('Unplanned downtime', fmt(m.downtime, 1) + ' h', delta(+m.downtime.toFixed(1), k.downtimePrev, ' h', false))
+  ]);
+  html += `<div class="grid g2">${card('Production performance trend, last 7 days', chartBox('cTrend'))}${card('Line performance comparison, OEE', chartBox('cLines'))}</div>`;
+  trendChart('cTrend', ['oee', 'attainment', 'fpy']);
+  lineCompareChart('cLines');
+  const crit = openAlerts().filter(a => ['Critical', 'High'].includes(a.severity)).sort(bySeverity).slice(0, 5);
+  html += `<div class="grid g2">
+    ${card('Critical alerts', alertList(crit), { right: `<span class="tag">${m.critical} critical open</span>` })}
+    ${card('AI insights', recList(topRecs(3)), { right: '<span class="tag">Top 3 priorities</span>' })}</div>`;
+  html += streamSummary();
+  return html;
+}
+
+function pgRoleDashboard() {
+  return ({ production: dashProd, engineering: dashEng, quality: dashQual, logistics: dashLog, plant: dashPlant })[ROLE]();
+}
+
+function dashProd() {
+  const m = M();
+  let html = pageHead('Production & operations dashboard', h(DB.plant.shift));
+  html += kpiRow([
+    kpi('Production attainment', fmt(m.attainment, 1) + '%', `Target ${fmt(m.target)} units`),
+    kpi('Output this shift', fmt(m.output), 'Simulated units'),
+    kpi('Active lines', `${m.running}/${m.totalLines}`, `${m.totalLines - m.running} not running`),
+    kpi('Open alerts', m.openAlerts, `${m.critical} critical`)
+  ]);
+  html += `<div class="grid g21">${card('Output per hour, actual vs. target', chartBox('cHourly'))}${card('Line status', lineTiles())}</div>`;
+  hourlyChart('cHourly');
+  const wis = DB.workInstructions.filter(w => w.audience === 'production').slice(0, 4);
+  html += `<div class="grid g3">
+    ${card('Latest alerts', alertList(openAlerts().slice(0, 4)))}
+    ${card('Abnormalities to handle', simpleList(DB.aiOps.map(a => ({ dot: a.type === 'Bottleneck' ? C.amber : C.crit, title: `${h(a.line)}: ${h(a.type)}`, meta: h(a.signal) }))))}
+    ${card('Related work instructions', simpleList(wis.map(w => ({ title: h(w.title), meta: `${w.id}, ${h(w.category)}`, right: `<button class="btn sm" onclick="openWI('${w.id}')">View</button>` }))))}</div>`;
+  return html;
+}
+
+function dashEng() {
+  const m = M(), k = DB.kpis, E = DB.equipment;
+  let html = pageHead('Engineering & maintenance dashboard', 'Equipment condition and maintenance workload');
+  html += kpiRow([
+    kpi('Equipment availability', k.availability + '%', 'Plant average'),
+    kpi('Unplanned downtime', fmt(m.downtime, 1) + ' h', 'This shift'),
+    kpi('Open work orders', m.openWO, `${DB.workOrders.filter(w => w.status !== 'Completed' && ['Critical', 'High'].includes(w.priority)).length} high priority`),
+    kpi('High-risk equipment', m.highRisk, 'Risk score 70 or above')
+  ]);
+  const byDown = E.slice().sort((a, b) => b.downtime - a.downtime);
+  const byRisk = E.slice().sort((a, b) => b.risk - a.risk);
+  html += `<div class="grid g2">${card('Downtime per machine (h)', chartBox('cDown'))}${card('Equipment risk level', chartBox('cRisk'))}</div>`;
+  mkChart('cDown', 'bar', { labels: byDown.map(e => e.name), datasets: [barDs('Downtime (h)', byDown.map(e => e.downtime), C.blue, { maxBarThickness: 16 })] },
+    { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: true, color: C.grid } }, y: { grid: { display: false } } } });
+  mkChart('cRisk', 'bar', { labels: byRisk.map(e => e.name), datasets: [barDs('Risk score', byRisk.map(e => e.risk), byRisk.map(e => riskColor(e.risk)), { maxBarThickness: 16 })] },
+    { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { max: 100, grid: { display: true, color: C.grid } }, y: { grid: { display: false } } } });
+  const pri = DB.workOrders.filter(w => w.status !== 'Completed').sort((a, b) => ['Critical', 'High', 'Medium', 'Low'].indexOf(a.priority) - ['Critical', 'High', 'Medium', 'Low'].indexOf(b.priority)).slice(0, 4);
+  html += `<div class="grid g3">
+    ${card('Machines needing inspection', simpleList(byRisk.filter(e => e.risk >= 50).map(e => ({ dot: riskColor(e.risk), title: `${h(e.name)}, risk ${e.risk}`, meta: h(e.rec) }))))}
+    ${card('Priority work orders', simpleList(pri.map(w => ({ title: h(w.task), meta: `${w.id}, ${w.equipment}, ${h(w.assignee)}`, right: badge(w.priority) }))))}
+    ${card('Technical recommendations', recList(DB.aiRecs.filter(r => r.area === 'Maintenance')))}</div>`;
+  return html;
+}
+
+function dashQual() {
+  const m = M(), k = DB.kpis;
+  let html = pageHead('Quality dashboard', 'Inspection results, defects and corrective actions');
+  html += kpiRow([
+    kpi('First pass yield', k.fpy + '%', delta(k.fpy, k.fpyPrev, ' pt', true)),
+    kpi('Defect rate', k.defectRate + '%', 'Threshold 2.0%'),
+    kpi('Scrap & rework', fmt(k.scrapRate + k.reworkRate, 1) + '%', `Scrap ${k.scrapRate}%, rework ${k.reworkRate}%`),
+    kpi('Open quality actions', m.openCA, 'Corrective actions not closed')
+  ]);
+  html += `<div class="grid g2">${card('Defect Pareto by category, last 7 days', chartBox('cPareto'))}${card('FPY and defect rate trend', chartBox('cQTrend'))}</div>`;
+  paretoChart('cPareto'); qualityTrendChart('cQTrend');
+  html += `<div class="grid g3">
+    ${card('Latest defects', simpleList(DB.defects.slice(0, 4).map(d => ({ dot: C.crit, title: `${h(d.category)}, ${h(d.line)}`, meta: `${h(d.station)}, unit ${h(d.unit)}, ${h(d.time.slice(-5))}`, right: badge(d.status) }))))}
+    ${card('Possible causes', simpleList(DB.qRca.slice(0, 3).map(r => ({ title: `${h(r.defect)}: ${h(r.factor)}`, meta: `Correlation ${r.strength.toFixed(2)}, ${r.confidence.toLowerCase()} confidence` }))))}
+    ${card('Open corrective actions', simpleList(DB.capa.filter(c => c.status !== 'Closed').slice(0, 4).map(c => ({ title: h(c.issue), meta: `${c.id}, ${h(c.owner)}, due ${c.deadline}`, right: badge(c.status) }))))}</div>`;
+  return html;
+}
+function paretoChart(id) {
+  const P = DB.pareto.slice().sort((a, b) => b.count - a.count), tot = sum(P.map(p => p.count));
+  let acc = 0; const cum = P.map(p => +((acc += p.count) / tot * 100).toFixed(1));
+  mkChart(id, 'bar', { labels: P.map(p => p.category), datasets: [
+    ds('Cumulative %', cum, C.charcoal, { type: 'line', yAxisID: 'y1', pointRadius: 3, borderWidth: 1.5, tension: 0 }),
+    barDs('Defects', P.map(p => p.count), C.blue)
+  ] }, { scales: { y1: { position: 'right', min: 0, max: 100, grid: { display: false }, border: { display: false }, ticks: { callback: v => v + '%' } } } });
+}
+function qualityTrendChart(id) {
+  const t = DB.trend;
+  mkChart(id, 'line', { labels: t.labels, datasets: [
+    ds('FPY %', t.fpy, C.green),
+    ds('Defect rate %', t.defectRate, C.crit, { yAxisID: 'y1' })
+  ] }, { scales: { y: { beginAtZero: false, suggestedMin: 94, suggestedMax: 98, ticks: { callback: v => v + '%' } }, y1: { position: 'right', beginAtZero: true, suggestedMax: 4, grid: { display: false }, border: { display: false }, ticks: { callback: v => v + '%' } } } });
+}
+
+function dashLog() {
+  const m = M(), s = DB.simSettings;
+  let html = pageHead('Logistics & production planning dashboard', 'Demand, capacity and material readiness');
+  html += kpiRow([
+    kpi('Forecast demand', fmt(m.forecast), 'Simulated units, next month'),
+    kpi('Capacity utilization', fmt(m.util, 0) + '%', `${fmt(s.plannedVolume)} of ${fmt(s.monthlyCapacity)} units`),
+    kpi('Material shortages', m.shortages, 'Under 2 days of stock'),
+    kpi('Plans awaiting review', m.plansAwaiting, 'Engineering or management')
+  ]);
+  html += `<div class="grid g2">${card('Forecast demand per powertrain', chartBox('cFc'))}${card('Current vs. recommended production mix', chartBox('cMix'))}</div>`;
+  forecastChart('cFc', 6);
+  mixCompareChart('cMix', s.currentMix, s.recommendedMix, 'Recommended');
+  const cap = capacityIssues(); const er = evaluateMix(s.recommendedMix);
+  if (er.moduleGap > 0) cap.unshift({ title: `Recommended mix needs ${fmt(er.moduleGap)} more battery modules per month`, meta: `Need ${fmt(er.modules)}, supply ${fmt(s.batterySupplyPerMonth)}` });
+  html += `<div class="grid g3">
+    ${card('Material shortages', simpleList(DB.materials.filter(x => cover(x) < 2).map(x => ({ dot: C.crit, title: h(x.name), meta: `${fmt(cover(x), 1)} days of stock, ${fmt(x.stock)} ${x.unit}` }))))}
+    ${card('Capacity constraints', simpleList(cap.slice(0, 4).map(c => ({ dot: C.amber, title: h(c.title), meta: h(c.meta) }))))}
+    ${card('Product mix scenarios', simpleList(DB.changeRequests.map(r => ({ title: `${r.id} ${h(r.title)}`, meta: `Mix ${mixText(r.mix)}`, right: badge(r.status) }))))}</div>`;
+  return html;
+}
+function forecastChart(id, n) {
+  const F = forecastMonths(n);
+  mkChart(id, 'bar', { labels: F.map(f => f.label), datasets: PT.map(p => barDs(p, F.map(f => f[p]), PT_COLOR[p], { borderRadius: 0 })) },
+    { scales: { x: { stacked: true }, y: { stacked: true } } });
+}
+function mixCompareChart(id, a, b, bLabel) {
+  mkChart(id, 'bar', { labels: PT, datasets: [barDs('Current', PT.map(p => a[p]), C.light), barDs(bLabel || 'Scenario', PT.map(p => b[p]), C.blue)] },
+    { scales: { y: pctTick } });
+}
+
+function dashPlant() {
+  const m = M(), k = DB.kpis;
+  let html = pageHead('Plant management dashboard', h(DB.plant.date));
+  html += kpiRow([
+    kpi('Overall OEE', k.oee + '%', delta(k.oee, k.oeePrev, ' pt', true)),
+    kpi('Production attainment', fmt(m.attainment, 1) + '%', 'This shift'),
+    kpi('Overall FPY', k.fpy + '%', delta(k.fpy, k.fpyPrev, ' pt', true)),
+    kpi('Critical open alerts', m.critical, `${m.openAlerts} open in total`)
+  ]);
+  html += `<div class="grid g2">${card('OEE and attainment trend', chartBox('cPTrend'))}${card('Line performance comparison, OEE', chartBox('cPLines'))}</div>`;
+  trendChart('cPTrend', ['oee', 'attainment']); lineCompareChart('cPLines');
+  const pend = DB.changeRequests.filter(r => r.status === 'Awaiting Approval');
+  html += `<div class="grid g3">
+    ${card('Top 3 cross-functional issues', simpleList(DB.crossInsights.slice(0, 3).map(c => ({ title: h(c.title), meta: h(c.links.join(', ')) }))))}
+    ${card('AI recommendations and impact', recList(topRecs(3)))}
+    ${card('Stream changes awaiting approval', simpleList(pend.map(r => ({ title: `${r.id} ${h(r.title)}`, meta: `Mix ${mixText(r.mix)}`, right: allowed('stream-approval') ? `<button class="btn sm" onclick="go('stream-approval')">Review</button>` : '' }))))}</div>`;
+  return html;
+}
+
+/* =========================================================
+   Production & Operations
+   ========================================================= */
+function pgProdMonitor() {
+  const m = M(), L = DB.lines;
+  let html = pageHead('Production monitoring', 'Target vs. actual output, line status, and cycle time vs. takt time');
+  html += kpiRow([
+    kpi('Target this shift', fmt(m.target), 'Simulated units'),
+    kpi('Actual output', fmt(m.output), 'Simulated units'),
+    kpi('Attainment', fmt(m.attainment, 1) + '%', `${fmt(m.target - m.output)} units behind`),
+    kpi('Lines over takt', L.filter(l => l.cycle > l.takt).length + ' / ' + L.length, 'Cycle time above takt time')
+  ]);
+  html += `<div class="grid g21">${card('Output per hour, actual vs. target', chartBox('cHourly'))}${card('Line status', lineTiles())}</div>`;
+  hourlyChart('cHourly');
+  html += card('Line performance', table([
+    ['Line', l => `<b>${h(l.name)}</b>${l.note ? `<div class="muted small">${h(l.note)}</div>` : ''}`],
+    ['Status', l => badge(l.status)],
+    ['Target', l => fmt(l.target), 'r'],
+    ['Actual', l => fmt(l.actual), 'r'],
+    ['Attainment', l => { const p = l.actual / l.target * 100; return cellBar(p, fmt(p, 1) + '%', p >= 95 ? C.green : p >= 85 ? C.amber : C.crit); }],
+    ['Cycle / takt', l => `${l.cycle} s / ${l.takt} s ${l.cycle > l.takt ? badge('Over takt') : ''}`],
+    ['OEE', l => l.oee + '%', 'r']
+  ], L));
+  return html;
+}
+
+function pgAiOps() {
+  let html = pageHead('AI operational monitoring', 'Process abnormalities, potential bottlenecks and visual alerts detected from available machine and camera data');
+  html += `<div class="grid g3">${['Abnormality', 'Bottleneck', 'Visual'].map(t => kpi(t === 'Visual' ? 'Visual detections' : t === 'Bottleneck' ? 'Potential bottlenecks' : 'Abnormalities', DB.aiOps.filter(a => a.type === t).length, 'Active now')).join('')}</div>`;
+  html += card('Detections', `<div class="list">${DB.aiOps.map((a, i) => `<div class="item">
+      <div class="grow"><div class="row">${badge(a.type)}<span class="t">${h(a.line)}</span></div>
+        <div class="meta" style="font-size:13px;color:var(--gray);margin-top:6px">${h(a.signal)}</div>
+        <div class="meta">Suggested: ${h(a.suggestion)}</div>
+        <div class="row mt">
+          ${a.wi ? `<button class="btn sm" onclick="openWI('${a.wi}')">Open ${a.wi}</button>` : ''}
+          ${can('edit') ? `<button class="btn sm" onclick="aiOpsToAlert(${i})">Report as alert</button>` : ''}
+        </div></div>
+      <div style="width:140px"><div class="small muted">Confidence ${a.confidence}%</div>${progress(a.confidence, C.blue)}</div></div>`).join('')}</div>`);
+  html += '<div class="callout">Detections are simulated for this prototype. In production they would come from connected PLC data and vision cameras.</div>';
+  return html;
+}
+function aiOpsToAlert(i) {
+  const a = DB.aiOps[i];
+  addAlert({ line: a.line, type: a.type === 'Visual' ? 'Quality' : 'Production', severity: a.confidence >= 85 ? 'High' : 'Medium', title: a.signal.replace(/\.$/, '') });
+  toast('Alert reported');
+}
+
+function wiPage(aud, title, desc) {
+  const list = DB.workInstructions.filter(w => w.audience === aud);
+  let html = pageHead(title, desc);
+  if (!list.length) return html + card('', empty('No work instructions yet. The System Administrator can add them.'));
+  const w = list.find(x => x.id === STATE.wiSel[aud]) || list[0];
+  const checks = STATE.wiChecks[w.id] || [];
+  const done = checks.filter(Boolean).length;
+  html += `<div class="grid g12">
+    ${card('Instructions', list.map(x => `<button class="wi-item ${x.id === w.id ? 'active' : ''}" onclick="STATE.wiSel['${aud}']='${x.id}';refresh()">
+      <div>${h(x.title)}</div><div class="meta">${x.id}, ${h(x.category)}, ${x.steps.length} steps</div></button>`).join(''))}
+    ${card(h(w.title), `<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="muted small">${w.id}, ${h(w.category)}</span><span class="small">${done} of ${w.steps.length} done</span></div>
+      ${progress(done / w.steps.length * 100, done === w.steps.length ? C.green : C.blue)}
+      <div class="mt">${w.steps.map((s, i) => `<label class="step ${checks[i] ? 'done' : ''}"><input type="checkbox" ${checks[i] ? 'checked' : ''} onchange="toggleStep('${w.id}',${i},this.checked)"><span>${i + 1}. ${h(s)}</span></label>`).join('')}</div>`,
+      { right: `<button class="btn sm" onclick="STATE.wiChecks['${w.id}']=[];refresh()">Clear</button>` })}</div>`;
+  return html;
+}
+function toggleStep(id, i, on) { (STATE.wiChecks[id] = STATE.wiChecks[id] || [])[i] = on; refresh(); }
+function openWI(id) {
+  const w = DB.workInstructions.find(x => x.id === id);
+  if (!w) return toast('Work instruction not found', 'err');
+  openModal(w.title, `<p class="muted small" style="margin-bottom:10px">${w.id}, ${h(w.category)}</p><ol style="padding-left:20px;margin:0">${w.steps.map(s => `<li style="margin-bottom:8px">${h(s)}</li>`).join('')}</ol>`);
+}
+function pgWorkInstr() { return wiPage('production', 'Digital work instructions', 'Work instructions, shift checklists and abnormality check steps'); }
+
+function pgAlertReport() {
+  const f = STATE.alertFilter;
+  const items = DB.alerts.filter(a => f === 'All' || (f === 'Active' ? a.status !== 'Resolved' : a.status === f)).sort(bySeverity);
+  let html = pageHead('Alert & action reporting', 'Report a problem, view alerts and follow their handling status');
+  const form = can('edit') ? `
+    ${field('Line', sel('aLine', DB.masterData.lines, DB.masterData.lines[0]))}
+    <div class="form-2">${field('Type', sel('aType', ['Production', 'Quality', 'Maintenance', 'Material'], 'Production'))}${field('Severity', sel('aSev', ['Low', 'Medium', 'High', 'Critical'], 'Medium'))}</div>
+    ${field('What happened?', ta('aDesc', '', 3))}
+    <button class="btn primary" onclick="submitAlert()">Report alert</button>` : empty('Your role can view alerts only.');
+  html += `<div class="grid g12">${card('Report a problem', form)}
+    ${card('Alerts', table([
+      ['Severity', a => badge(a.severity)],
+      ['Alert', a => `<b>${h(a.title)}</b><div class="muted small">${a.id}, ${h(a.line)}, ${a.time}</div>`],
+      ['Owner', a => h(a.owner)],
+      ['Status', a => badge(a.status)],
+      ['', a => !can('edit') ? '' : a.status === 'Open' ? `<button class="btn sm" onclick="setAlert('${a.id}','In Progress')">Start</button>` : a.status === 'In Progress' ? `<button class="btn sm" onclick="setAlert('${a.id}','Resolved')">Resolve</button>` : '', 'r']
+    ], items, 'No alerts match this filter.'), { right: sel('aFilter', ['Active', 'Open', 'In Progress', 'Resolved', 'All'], f, `style="width:auto" onchange="STATE.alertFilter=this.value;refresh()"`) })}</div>`;
+  return html;
+}
+function addAlert(a) {
+  const owner = { Production: 'Team Leader', Quality: 'Quality Engineer', Maintenance: 'Maintenance Engineer', Material: 'Production Planner' }[a.type] || 'Team Leader';
+  const id = nextId(DB.alerts, 'AL-', 1000);
+  DB.alerts.unshift(Object.assign({ id, time: nowHM(), status: 'Open', owner, escalation: 0 }, a));
+  persist('alerts', 'Report alert', `${id} ${a.title}`);
+  if (PAGE) refresh();
+}
+function submitAlert() {
+  const d = val('aDesc').trim();
+  if (!d) return toast('Describe what happened before reporting', 'err');
+  addAlert({ line: val('aLine'), type: val('aType'), severity: val('aSev'), title: d });
+  toast('Alert reported');
+}
+function setAlert(id, status) {
+  const a = DB.alerts.find(x => x.id === id); if (!a) return;
+  a.status = status;
+  persist('alerts', 'Update alert', `${id} set to ${status}`);
+  toast(`Alert ${status.toLowerCase()}`);
+  refresh();
+}
+
+const STOP = ['what', 'the', 'when', 'how', 'for', 'and', 'with', 'about', 'does', 'are', 'show', 'active', 'should', 'there', 'any', 'can', 'you', 'from', 'this', 'that', 'need', 'please', 'tell'];
+function pgChatbot() {
+  if (!STATE.chat.length) STATE.chat = [{ who: 'bot', html: '<p>Hi. I can find work instructions and information about active alerts. Ask a question or pick a suggestion below.</p>' }];
+  const sug = ['What to do when the line stops?', 'Alerts on Body Weld 2', 'How do I verify torque tools?', 'Shift start checklist'];
+  return pageHead('AI chatbot', 'Search work instructions and alert information. Rule-based demo assistant.') +
+    `<div class="card chat"><div class="chat-log" id="chatLog">${STATE.chat.map(c => `<div class="msg ${c.who}">${c.html}</div>`).join('')}</div>
+      <div class="chat-sug">${sug.map(s => `<button class="btn sm" onclick="askBot(${h(js(s))})">${h(s)}</button>`).join('')}</div>
+      <div class="chat-in"><input id="chatQ" placeholder="Ask about a work instruction or an alert" onkeydown="if(event.key==='Enter')askBot()"><button class="btn primary" onclick="askBot()">Send</button></div></div>`;
+}
+function askBot(q) {
+  q = (q || val('chatQ')).trim(); if (!q) return;
+  STATE.chat.push({ who: 'user', html: h(q) }, { who: 'bot', html: botAnswer(q) });
+  refresh();
+  const log = $('#chatLog'); if (log) log.scrollTop = log.scrollHeight;
+  const i = $('#chatQ'); if (i) i.focus();
+}
+function botAnswer(q) {
+  const words = q.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2 && !STOP.includes(w)).map(w => w.replace(/(ing|s)$/, ''));
+  const score = txt => { const t = txt.toLowerCase(); return words.reduce((a, w) => a + (t.includes(w) ? 1 : 0), 0); };
+  const pool = ROLE === 'production' ? DB.workInstructions.filter(w => w.audience === 'production') : DB.workInstructions;
+  const wis = pool.map(w => ({ w, s: score(w.title + ' ' + w.category) * 2 + score(w.steps.join(' ')) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
+  const alerts = openAlerts().map(a => ({ a, s: score(a.title + ' ' + a.line + ' ' + a.type) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
+  const wantsAlerts = /alert|issue|problem|abnormal|status/.test(q.toLowerCase());
+  let out = '';
+  if (wis.length && (!wantsAlerts || !alerts.length || wis[0].s > 2)) {
+    const w = wis[0].w;
+    out += `<p>Best match: <b>${h(w.title)}</b> (${w.id})</p><ol>${w.steps.map(s => `<li>${h(s)}</li>`).join('')}</ol>`;
+    if (wis[1]) out += `<p class="small muted">Also related: ${wis.slice(1, 3).map(x => h(x.w.title)).join(', ')}</p>`;
+  }
+  const al = alerts.length ? alerts.slice(0, 3).map(x => x.a) : (wantsAlerts ? openAlerts().sort(bySeverity).slice(0, 3) : []);
+  if (al.length) out += `<p>${alerts.length ? 'Related active alerts' : 'Current active alerts'}:</p>` + al.map(a => `<p>${badge(a.severity)} ${h(a.title)} <span class="small muted">(${h(a.line)}, ${h(a.status)}, owner ${h(a.owner)})</span></p>`).join('');
+  return out || '<p>No matching work instruction or alert found. Try keywords such as line stop, torque, conveyor, or a line name.</p>';
+}
+
+/* =========================================================
+   Engineering & Maintenance
+   ========================================================= */
+function pgEquipHealth() {
+  const E = DB.equipment, k = DB.kpis;
+  let html = pageHead('Equipment health monitoring', 'Machine status, utilization, failure history and downtime');
+  html += kpiRow([
+    kpi('Availability', k.availability + '%', 'Plant average'),
+    kpi('Machines running', E.filter(e => e.status === 'Running').length + ' / ' + E.length, `${E.filter(e => e.status !== 'Running').length} stopped`),
+    kpi('Downtime this shift', fmt(sum(E.map(e => e.downtime)), 1) + ' h', 'Unplanned'),
+    kpi('Failures, last 7 days', sum(E.map(e => e.failures)), 'All monitored machines')
+  ]);
+  html += card('Equipment status', table([
+    ['Machine', e => `<b>${h(e.name)}</b><div class="muted small">${e.id}, ${h(e.line)}</div>`],
+    ['Status', e => badge(e.status)],
+    ['Availability', e => e.availability + '%', 'r'],
+    ['Utilization', e => cellBar(e.utilization, e.utilization + '%', C.blue)],
+    ['Downtime', e => e.downtime + ' h', 'r'],
+    ['Failures (7d)', e => e.failures, 'r'],
+    ['Last failure', e => h(e.lastFailure)]
+  ], E));
+  html += card('Failure history', table([
+    ['Date', f => f.date], ['Machine', f => { const e = E.find(x => x.id === f.machine); return `${f.machine} ${e ? h(e.name) : ''}`; }],
+    ['Event', f => h(f.event)], ['Duration', f => f.duration + ' h', 'r']
+  ], DB.failureHistory));
+  return html;
+}
+
+function pgPredictive() {
+  const E = DB.equipment.slice().sort((a, b) => b.risk - a.risk);
+  let html = pageHead('Predictive maintenance', 'Risk scores and inspection recommendations based on available machine condition data');
+  html += `<div class="grid g2">${E.map(e => card(h(e.name), `
+    <div class="row" style="justify-content:space-between"><span class="muted small">${e.id}, ${h(e.line)}</span><b style="color:${riskColor(e.risk)}">Risk ${e.risk}</b></div>
+    <div class="mt">${progress(e.risk, riskColor(e.risk), true)}</div>
+    <div class="grid g3 flat mt">
+      <div><div class="kpi-label">Temperature</div><b>${e.temp} °C</b></div>
+      <div><div class="kpi-label">Vibration</div><b>${e.vibration} mm/s</b></div>
+      <div><div class="kpi-label">Failures (7d)</div><b>${e.failures}</b></div></div>
+    <p class="mt" style="font-size:13px">${h(e.rec)}</p>
+    ${e.risk >= 50 && can('edit') ? `<div class="mt"><button class="btn sm" onclick="woFromRisk('${e.id}')">Create work order</button></div>` : ''}`,
+    { right: badge(e.risk >= 70 ? 'High' : e.risk >= 50 ? 'Medium' : 'OK') })).join('')}</div>`;
+  return html;
+}
+function woFromRisk(id) {
+  const e = DB.equipment.find(x => x.id === id);
+  if (DB.workOrders.some(w => w.equipment === id && w.status !== 'Completed')) return toast(`${id} already has an open work order`, 'err');
+  newWO({ equipment: id, task: e.rec, priority: e.risk >= 70 ? 'High' : 'Medium' });
+}
+
+const WO_STATUS = ['Open', 'In Progress', 'Waiting Parts', 'Completed'];
+function pgWorkOrders() {
+  const W = DB.workOrders.slice().sort((a, b) => (a.status === 'Completed') - (b.status === 'Completed') || ['Critical', 'High', 'Medium', 'Low'].indexOf(a.priority) - ['Critical', 'High', 'Medium', 'Low'].indexOf(b.priority));
+  let html = pageHead('Maintenance work orders', 'Jobs, priority, assignee and repair status', can('edit') ? '<button class="btn primary" onclick="newWO()">New work order</button>' : '');
+  html += `<div class="grid g4">${WO_STATUS.map(s => kpi(s, DB.workOrders.filter(w => w.status === s).length, '')).join('')}</div>`;
+  html += card('Work orders', table([
+    ['ID', w => w.id], ['Task', w => `<b>${h(w.task)}</b><div class="muted small">${w.equipment}</div>`],
+    ['Priority', w => badge(w.priority)], ['Assignee', w => h(w.assignee)],
+    ['Due', w => `${w.due}${w.status !== 'Completed' && w.due < today() ? ' ' + badge('Overdue') : ''}`],
+    ['Status', w => `<select class="mini" style="width:auto" onchange="setWO('${w.id}',this.value)" ${can('edit') ? '' : 'disabled'}>${WO_STATUS.map(s => `<option ${s === w.status ? 'selected' : ''}>${s}</option>`).join('')}</select>`]
+  ], W));
+  return html;
+}
+function setWO(id, status) {
+  const w = DB.workOrders.find(x => x.id === id); w.status = status;
+  persist('workOrders', 'Update work order', `${id} set to ${status}`); toast('Work order updated'); refresh();
+}
+function newWO(pre) {
+  pre = pre || {};
+  openModal('New work order', `
+    ${field('Equipment', sel('woEq', DB.equipment.map(e => [e.id, `${e.id} ${e.name}`]), pre.equipment || DB.equipment[0].id))}
+    ${field('Task', inp('woTask', pre.task || ''))}
+    <div class="form-2">${field('Priority', sel('woPri', ['Critical', 'High', 'Medium', 'Low'], pre.priority || 'Medium'))}${field('Due date', inp('woDue', today(), 'date'))}</div>
+    ${field('Assignee', inp('woAs', 'Andi Saputra'))}`, () => {
+    const task = val('woTask').trim(); if (!task) { toast('Enter a task', 'err'); return false; }
+    const id = nextId(DB.workOrders, 'WO-', 2400);
+    DB.workOrders.unshift({ id, equipment: val('woEq'), task, priority: val('woPri'), assignee: val('woAs'), due: val('woDue'), status: 'Open' });
+    persist('workOrders', 'Create work order', `${id} ${task}`); toast('Work order created'); refresh();
+  }, 'Create work order');
+}
+
+function pgRca() {
+  const ids = Object.keys(DB.rca);
+  const id = ids.includes(STATE.rcaMachine) ? STATE.rcaMachine : ids[0];
+  const r = DB.rca[id], e = DB.equipment.find(x => x.id === id);
+  let html = pageHead('Root cause analysis', 'Failure patterns from machine history, downtime and process parameters',
+    sel('rcaSel', ids.map(i => [i, `${i} ${DB.equipment.find(x => x.id === i).name}`]), id, `style="width:auto" onchange="STATE.rcaMachine=this.value;refresh()"`));
+  html += `<div class="grid g2">${card('Downtime by cause, last 30 days (h)', chartBox('cRca', 220))}
+    ${card('Process parameters', table([['Parameter', p => p[0]], ['Observation', p => h(p[1])]], r.params))}</div>`;
+  mkChart('cRca', 'bar', { labels: r.causes.map(c => c[0]), datasets: [barDs('Hours', r.causes.map(c => c[1]), C.blue, { maxBarThickness: 22 })] },
+    { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: true, color: C.grid } }, y: { grid: { display: false } } } });
+  html += `<div class="grid g2">${card('Likely root cause', `<p>${h(r.finding)}</p><p class="mt muted small">Recommended action: ${h(e.rec)}</p>`)}
+    ${card('Failure history for this machine', table([['Date', f => f.date], ['Event', f => h(f.event)], ['Duration', f => f.duration + ' h', 'r']], DB.failureHistory.filter(f => f.machine === id)))}</div>`;
+  return html;
+}
+
+function pgEngChange() {
+  let html = pageHead('Engineering change management', 'Requests to change tooling, equipment or line configuration', can('edit') ? '<button class="btn primary" onclick="newECR()">New change request</button>' : '');
+  html += card('Change requests', table([
+    ['ID', r => r.id], ['Type', r => h(r.type)], ['Line', r => h(r.line)], ['Description', r => h(r.description)],
+    ['Requested by', r => `${h(r.requester)}<div class="muted small">${r.date}</div>`], ['Status', r => badge(r.status)]
+  ], DB.engChanges));
+  const review = DB.changeRequests.filter(r => r.status === 'Engineering Review');
+  html += card('Production stream plans waiting for engineering review', review.length ? table([
+    ['Plan', r => `<b>${r.id} ${h(r.title)}</b><div class="muted small">${h(r.notes)}</div>`],
+    ['Mix ICE/HEV/PHEV/BEV', r => mixText(r.mix)],
+    ['Feasibility', r => { const e = evaluateMix(r.mix); return `${e.mods.length ? badge('Warning') + ' needs equipment change' : badge('Feasible')}<div class="muted small">Lead time ${e.lead} weeks</div>`; }],
+    ['', r => can('edit') ? `<button class="btn sm" onclick="reviewPlan('${r.id}')">Review</button>` : '', 'r']
+  ], review) : empty('No plans waiting for review.'));
+  return html;
+}
+function newECR() {
+  openModal('New engineering change request', `
+    <div class="form-2">${field('Type', sel('ecType', ['Tooling', 'Equipment', 'Line configuration'], 'Tooling'))}${field('Line', sel('ecLine', DB.masterData.lines, DB.masterData.lines[0]))}</div>
+    ${field('Description', ta('ecDesc', '', 3))}`, () => {
+    const d = val('ecDesc').trim(); if (!d) { toast('Enter a description', 'err'); return false; }
+    const id = nextId(DB.engChanges, 'ECR-', 200);
+    DB.engChanges.unshift({ id, type: val('ecType'), line: val('ecLine'), description: d, requester: 'Process Engineer', date: today(), status: 'Proposed' });
+    persist('engChanges', 'Create change request', `${id} ${d}`); toast('Change request created'); refresh();
+  }, 'Create request');
+}
+function reviewPlan(id) {
+  const r = DB.changeRequests.find(x => x.id === id), e = evaluateMix(r.mix);
+  openModal(`Engineering review: ${r.id}`, `
+    <p style="margin-bottom:10px">${h(r.title)}. Mix ${mixText(r.mix)}.</p>
+    <ul class="clean" style="margin-bottom:12px"><li>Capacity utilization ${fmt(e.util, 0)}%</li><li>Battery modules ${fmt(e.modules)} per month (${e.moduleGap > 0 ? fmt(e.moduleGap) + ' above supply' : 'within supply'})</li>
+    <li>${e.mods.length ? 'Equipment change needed for ' + e.mods.join(', ') : 'No equipment change needed'}</li></ul>
+    ${field('Engineering note', ta('erNote', '', 3))}`, () => {
+    r.engineeringNote = val('erNote').trim() || 'Reviewed by Engineering.';
+    r.status = 'Awaiting Approval';
+    persist('changeRequests', 'Engineering review', `${r.id} sent to management`); toast('Sent to management for approval'); refresh();
+  }, 'Send to management');
+}
+
+function pgSimLab() {
+  const s = STATE.lab;
+  let html = pageHead('Simulation lab', 'See how cycle time, machine availability and defect improvements change output');
+  html += `<div class="grid g12">${card('Scenario inputs', `
+      ${field('Line', sel('labLine', DB.lines.map(l => [l.id, l.name]), s.line, `onchange="STATE.lab.line=this.value;labUpdate()"`))}
+      ${slider('Cycle time improvement', s.ct, 0, 15, 1, '%', 'STATE.lab.ct=+this.value;labUpdate()')}
+      ${slider('Availability increase', s.av, 0, 6, 0.5, ' pt', 'STATE.lab.av=+this.value;labUpdate()')}
+      ${slider('Defect reduction', s.df, 0, 60, 5, '%', 'STATE.lab.df=+this.value;labUpdate()')}
+      <p class="muted small">Good units per shift = shift seconds ÷ cycle time × availability × (1 − defect rate).</p>`)}
+    <div id="labRes"></div></div>`;
+  afterQ.push(labUpdate);
+  return html;
+}
+function labUpdate() {
+  const s = STATE.lab, l = DB.lines.find(x => x.id === s.line), k = DB.kpis, sec = DB.simSettings.shiftHours * 3600;
+  const base = sec / l.cycle * (k.availability / 100) * (1 - k.defectRate / 100);
+  const ct = l.cycle * (1 - s.ct / 100), av = Math.min(99.5, k.availability + s.av), df = k.defectRate * (1 - s.df / 100);
+  const scen = sec / ct * (av / 100) * (1 - df / 100);
+  const el = $('#labRes'); if (!el) return;
+  el.innerHTML = `<div class="grid g3">
+      ${kpi('Baseline good units', fmt(base), `CT ${l.cycle} s, avail. ${k.availability}%, defects ${k.defectRate}%`)}
+      ${kpi('Scenario good units', fmt(scen), `CT ${ct.toFixed(1)} s, avail. ${av}%, defects ${df.toFixed(2)}%`)}
+      ${kpi('Change per shift', '+' + fmt(scen - base), `About +${fmt((scen - base) * 2 * 22)} units per month`)}</div>
+    ${card('Baseline vs. scenario, ' + h(l.name), chartBox('cLab', 220))}`;
+  drawChart('cLab', 'bar', { labels: ['Baseline', 'Scenario'], datasets: [barDs('Good units per shift', [Math.round(base), Math.round(scen)], [C.light, C.green], { maxBarThickness: 60 })] }, { plugins: { legend: { display: false } } });
+}
+function pgTechWi() { return wiPage('engineering', 'Technical work instructions', 'Troubleshooting checklists, inspections and preventive maintenance'); }
+
+/* =========================================================
+   Quality Control & Assurance
+   ========================================================= */
+function pgInspection() {
+  const I = DB.inspections, pass = I.filter(i => i.result === 'Pass').length;
+  let html = pageHead('Quality inspection', 'Record inspection results and pass/fail status');
+  html += kpiRow([kpi('Inspections recorded', I.length, 'Recent records'), kpi('Pass', pass, ''), kpi('Fail', I.length - pass, ''), kpi('Pass rate', I.length ? fmt(pass / I.length * 100, 1) + '%' : '–', '')]);
+  const form = can('edit') ? `
+    <div class="form-2">${field('Line', sel('inLine', DB.masterData.lines, 'Final Inspection'))}${field('Station', inp('inSt', 'FI-01'))}</div>
+    <div class="form-2">${field('Unit ID', inp('inUnit', 'SIM-' + (900 + I.length)))}${field('Result', sel('inRes', ['Pass', 'Fail'], 'Pass'))}</div>
+    ${field('Defect category (if fail)', sel('inDef', [['', 'None']].concat(DB.masterData.defectCategories), ''))}
+    <button class="btn primary" onclick="submitInspection()">Save inspection</button>` : empty('Your role can view inspections only.');
+  html += `<div class="grid g12">${card('Record inspection', form)}
+    ${card('Recent inspections', table([
+      ['ID', i => i.id], ['Time', i => i.time], ['Line / station', i => `${h(i.line)}<div class="muted small">${h(i.station)}</div>`],
+      ['Unit', i => h(i.unit)], ['Result', i => badge(i.result)], ['Defect', i => h(i.defect || '–')]
+    ], I))}</div>`;
+  return html;
+}
+function submitInspection() {
+  const res = val('inRes'), def = val('inDef'), unit = val('inUnit').trim(), line = val('inLine'), st = val('inSt').trim();
+  if (!unit || !st) return toast('Enter station and unit ID', 'err');
+  if (res === 'Fail' && !def) return toast('Choose a defect category for a failed unit', 'err');
+  const id = nextId(DB.inspections, 'IN-', 5500);
+  DB.inspections.unshift({ id, time: nowHM(), line, station: st, unit, result: res, defect: res === 'Fail' ? def : '', inspector: 'QC demo' });
+  persist('inspections', 'Record inspection', `${id} ${unit} ${res}${res === 'Fail' ? ' (' + def + ')' : ''}`);
+  if (res === 'Fail') {
+    DB.defects.unshift({ id: nextId(DB.defects, 'DF-', 880), time: today() + ' ' + nowHM(), line, station: st, batch: 'B-04', unit, category: def, source: 'Manual', confidence: 0, status: 'Confirmed' });
+    persist('defects');
+  }
+  toast('Inspection saved'); refresh();
+}
+
+function visionImg(d, i) {
+  const x = 30 + (i * 37) % 110, y = 22 + (i * 23) % 45;
+  return `<svg class="vimg" viewBox="0 0 220 120" aria-label="Camera frame with highlighted defect"><rect width="220" height="120" fill="#E9ECEF"/>
+    <path d="M20 96 C40 50 70 36 110 34 C150 36 180 50 200 96 Z" fill="#D5DADF"/><rect x="20" y="96" width="180" height="6" fill="#C4C9D0"/>
+    <rect x="${x}" y="${y}" width="52" height="30" rx="3" fill="rgba(235,10,30,.06)" stroke="#EB0A1E" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="${x}" y="${y - 4}" font-size="9" fill="#B3261E" font-family="Inter, Arial">${h(d.category)} ${d.confidence}%</text></svg>`;
+}
+function pgAiVision() {
+  const V = DB.defects.filter(d => d.source === 'AI Vision');
+  let html = pageHead('AI vision & defect monitoring', 'Defects recognized from camera images or inspection data. Inspectors confirm or dismiss each detection.');
+  html += `<div class="grid g3">${kpi('Detections', V.length, 'Current shift')}${kpi('Pending review', V.filter(d => d.status === 'Pending Review').length, 'Need inspector check')}${kpi('Average confidence', V.length ? fmt(sum(V.map(d => d.confidence)) / V.length, 0) + '%' : '–', '')}</div>`;
+  html += `<div class="grid g3">${V.map((d, i) => card(`${h(d.category)}`, `${visionImg(d, i)}
+      <div class="mt small"><b>${h(d.line)}</b>, ${h(d.station)}</div><div class="muted small">Unit ${h(d.unit)}, ${h(d.time)}</div>
+      ${d.status === 'Pending Review' && can('edit') ? `<div class="row mt"><button class="btn sm primary" onclick="setDefect('${d.id}','Confirmed')">Confirm</button><button class="btn sm" onclick="setDefect('${d.id}','Dismissed')">Dismiss</button></div>` : ''}`,
+    { right: badge(d.status) })).join('')}</div>`;
+  html += '<div class="callout">Camera frames are illustrations. A real deployment would stream images from vision stations.</div>';
+  return html;
+}
+function setDefect(id, status) {
+  const d = DB.defects.find(x => x.id === id); d.status = status;
+  persist('defects', 'Review AI detection', `${id} ${d.category} ${status}`); toast(`Detection ${status.toLowerCase()}`); refresh();
+}
+
+function pgTraceability() {
+  const t = STATE.trace;
+  const html = pageHead('Defect traceability', 'Trace defects by line, station, time and batch or simulated unit') +
+    card('Defects', `<div class="filters" style="margin-bottom:14px">
+      ${sel('trLine', [['', 'All lines']].concat(DB.masterData.lines), t.line, `onchange="STATE.trace.line=this.value;traceUpdate()"`)}
+      ${sel('trCat', [['', 'All categories']].concat(DB.masterData.defectCategories), t.cat, `onchange="STATE.trace.cat=this.value;traceUpdate()"`)}
+      ${inp('trQ', t.q, 'search', `placeholder="Search unit, batch or station" oninput="STATE.trace.q=this.value;traceUpdate()"`)}</div><div id="traceTbl"></div>`);
+  afterQ.push(traceUpdate);
+  return html;
+}
+function traceUpdate() {
+  const t = STATE.trace, q = t.q.toLowerCase();
+  const rows = DB.defects.filter(d => (!t.line || d.line === t.line) && (!t.cat || d.category === t.cat) && (!q || (d.unit + ' ' + d.batch + ' ' + d.station + ' ' + d.id).toLowerCase().includes(q)));
+  const el = $('#traceTbl'); if (!el) return;
+  el.innerHTML = table([
+    ['ID', d => d.id], ['Time', d => h(d.time)], ['Line', d => h(d.line)], ['Station', d => h(d.station)],
+    ['Batch', d => h(d.batch)], ['Unit', d => h(d.unit)], ['Category', d => h(d.category)],
+    ['Source', d => h(d.source) + (d.confidence ? ` <span class="muted small">${d.confidence}%</span>` : '')], ['Status', d => badge(d.status)]
+  ], rows, 'No defects match these filters.');
+}
+
+function pgQAnalytics() {
+  const k = DB.kpis;
+  let html = pageHead('Quality analytics', 'Defect Pareto, first pass yield, scrap rate and rework rate');
+  html += kpiRow([kpi('First pass yield', k.fpy + '%', delta(k.fpy, k.fpyPrev, ' pt', true)), kpi('Defect rate', k.defectRate + '%', 'Threshold 2.0%'), kpi('Scrap rate', k.scrapRate + '%', ''), kpi('Rework rate', k.reworkRate + '%', '')]);
+  html += `<div class="grid g2">${card('Defect Pareto', chartBox('cPareto'))}${card('FPY and defect rate trend', chartBox('cQTrend'))}</div>`;
+  paretoChart('cPareto'); qualityTrendChart('cQTrend');
+  html += card('Quality by line', table([
+    ['Line', r => `<b>${h(r.line)}</b>`], ['Inspected', r => fmt(r.inspected), 'r'],
+    ['FPY', r => cellBar((r.fpy - 90) * 10, r.fpy + '%', r.fpy >= 96 ? C.green : r.fpy >= 95 ? C.amber : C.crit)],
+    ['Defects', r => r.defects, 'r'], ['Scrap', r => r.scrap + '%', 'r'], ['Rework', r => r.rework + '%', 'r']
+  ], DB.qualityByLine));
+  return html;
+}
+
+function pgQRca() {
+  let html = pageHead('AI root cause analysis', 'Likely links between defects, cycle time, downtime and process parameters');
+  html += `<div class="grid g2">${DB.qRca.map((r, i) => card(h(r.defect), `
+    <div class="sub-h" style="margin-bottom:4px">${h(r.factor)}</div>
+    <p class="muted small">${h(r.evidence)}</p>
+    <div class="small mt">Correlation strength ${r.strength.toFixed(2)}</div>
+    <div style="margin-top:6px">${progress(r.strength * 100, r.strength >= .6 ? C.crit : r.strength >= .45 ? C.amber : C.light)}</div>
+    ${can('edit') && allowed('capa') ? `<div class="mt"><button class="btn sm" onclick="newCA(${i})">Create corrective action</button></div>` : ''}`,
+    { right: `<span class="tag">${r.confidence} confidence</span>` })).join('')}</div>`;
+  html += '<div class="callout">Correlation does not prove cause. Use these findings to decide where to investigate first.</div>';
+  return html;
+}
+
+const CA_STATUS = ['Open', 'In Progress', 'Verification', 'Closed'];
+function pgCapa() {
+  let html = pageHead('Corrective action tracking', 'Owner, corrective action, deadline and result verification', can('edit') ? '<button class="btn primary" onclick="newCA()">New corrective action</button>' : '');
+  html += `<div class="grid g4">${CA_STATUS.map(s => kpi(s, DB.capa.filter(c => c.status === s).length, '')).join('')}</div>`;
+  html += card('Corrective actions', table([
+    ['ID', c => c.id], ['Issue', c => `<b>${h(c.issue)}</b><div class="muted small">${h(c.action)}</div>`],
+    ['Owner', c => h(c.owner)], ['Deadline', c => `${c.deadline}${c.status !== 'Closed' && c.deadline < today() ? ' ' + badge('Overdue') : ''}`],
+    ['Verification', c => h(c.verification)],
+    ['Status', c => `<select class="mini" style="width:auto" onchange="setCA('${c.id}',this.value)" ${can('edit') ? '' : 'disabled'}>${CA_STATUS.map(s => `<option ${s === c.status ? 'selected' : ''}>${s}</option>`).join('')}</select>`]
+  ], DB.capa));
+  return html;
+}
+function setCA(id, status) {
+  const c = DB.capa.find(x => x.id === id); c.status = status;
+  if (status === 'Closed' && c.verification === 'Pending') c.verification = 'Effective';
+  if (status === 'Verification' && c.verification === 'Pending') c.verification = 'Monitoring';
+  persist('capa', 'Update corrective action', `${id} set to ${status}`); toast('Corrective action updated'); refresh();
+}
+function newCA(rcaIndex) {
+  const r = rcaIndex != null ? DB.qRca[rcaIndex] : null;
+  openModal('New corrective action', `
+    ${field('Issue', inp('caIssue', r ? r.defect + ': ' + r.factor : ''))}
+    ${field('Corrective action', ta('caAct', '', 2))}
+    <div class="form-2">${field('Owner', inp('caOwner', 'Sari Wulandari'))}${field('Deadline', inp('caDue', today(), 'date'))}</div>`, () => {
+    const issue = val('caIssue').trim(), act = val('caAct').trim();
+    if (!issue || !act) { toast('Enter the issue and the action', 'err'); return false; }
+    const id = nextId(DB.capa, 'CA-', 300);
+    DB.capa.unshift({ id, issue, action: act, owner: val('caOwner'), deadline: val('caDue'), status: 'Open', verification: 'Pending' });
+    persist('capa', 'Create corrective action', `${id} ${issue}`); toast('Corrective action created');
+    if (PAGE === 'capa') refresh(); else go('capa');
+  }, 'Create action');
+}
+
+function pgQAlerts() {
+  const Q = DB.alerts.filter(a => a.type === 'Quality').sort(bySeverity);
+  const counts = {}; DB.defects.filter(d => d.status !== 'Dismissed').forEach(d => { counts[d.category] = (counts[d.category] || 0) + 1; });
+  const repeat = Object.entries(counts).filter(e => e[1] >= 2).sort((a, b) => b[1] - a[1]);
+  let html = pageHead('Quality alerts', 'Notifications for repeat defects and quality conditions above threshold');
+  html += `<div class="grid g2">${card('Quality alerts', alertList(Q))}
+    ${card('Repeat defects this shift', simpleList(repeat.map(r => ({ dot: r[1] >= 3 ? C.crit : C.amber, title: `${h(r[0])}: ${r[1]} occurrences`, meta: r[1] >= 3 ? 'Above repeat-defect threshold (3 per hour)' : 'Watch: close to threshold' }))))}</div>`;
+  html += card('Quality thresholds', table([
+    ['Metric', a => h(a.metric)], ['Threshold', a => h(a.threshold)], ['Severity', a => badge(a.severity)],
+    ['Owner', a => h(a.owner)], ['Escalation', a => `After ${a.escalateMin} min to ${h(a.escalateTo)}`]
+  ], DB.alertConfig.filter(a => a.type === 'Quality')) + '<p class="muted small mt">Thresholds are managed by the System Administrator.</p>');
+  return html;
+}
+
+/* =========================================================
+   Logistics & Production Planning
+   ========================================================= */
+function pgInventory() {
+  const Mt = DB.materials;
+  let html = pageHead('Material & inventory monitoring', 'Available stock, material needs and shortages');
+  html += kpiRow([
+    kpi('Materials tracked', Mt.length, ''),
+    kpi('Shortages', Mt.filter(m => stockStatus(m) === 'Shortage').length, 'Under 2 days of stock'),
+    kpi('Low stock', Mt.filter(m => stockStatus(m) === 'Low Stock').length, '2 to 4 days of stock'),
+    kpi('Replenishments open', DB.materialFlow.filter(f => f.status !== 'Delivered').length, 'Requested, in transit or delayed')
+  ]);
+  const rows = Mt.slice().sort((a, b) => cover(a) - cover(b));
+  html += card('Stock levels', table([
+    ['Material', m => `<b>${h(m.name)}</b><div class="muted small">${m.code}, ${h(m.category)}</div>`],
+    ['Stock', m => `${fmt(m.stock)} ${m.unit}`, 'r'], ['Daily need', m => `${fmt(m.daily)} ${m.unit}`, 'r'],
+    ['Coverage', m => { const c = cover(m); return cellBar(c / 8 * 100, fmt(c, 1) + ' days', c < 2 ? C.crit : c < 4 ? C.amber : C.green); }],
+    ['Status', m => badge(stockStatus(m))],
+    ['', m => stockStatus(m) !== 'OK' && can('edit') ? (DB.materialFlow.some(f => f.material === m.name && f.status !== 'Delivered') ? '<span class="muted small">Replenishment open</span>' : `<button class="btn sm" onclick="requestRepl('${m.code}')">Request replenishment</button>`) : '', 'r']
+  ], rows));
+  return html;
+}
+function requestRepl(code) {
+  const m = DB.materials.find(x => x.code === code);
+  const id = nextId(DB.materialFlow, 'MF-', 7700);
+  DB.materialFlow.unshift({ id, material: m.name, qty: Math.ceil(m.daily * 3), from: 'Warehouse A', to: m.area, status: 'Requested', eta: '–' });
+  persist('materialFlow', 'Request replenishment', `${id} ${m.name}`); toast('Replenishment requested'); refresh();
+}
+
+const FLOW_NEXT = { Requested: 'In Transit', 'In Transit': 'Delivered', Delayed: 'Delivered' };
+function pgMaterialFlow() {
+  const F = DB.materialFlow;
+  let html = pageHead('Material flow tracking', 'Replenishment status and internal material deliveries');
+  html += `<div class="grid g4">${['Requested', 'In Transit', 'Delayed', 'Delivered'].map(s => kpi(s, F.filter(f => f.status === s).length, '')).join('')}</div>`;
+  html += card('Deliveries', table([
+    ['ID', f => f.id], ['Material', f => `<b>${h(f.material)}</b>`], ['Quantity', f => fmt(f.qty), 'r'],
+    ['From', f => h(f.from)], ['To', f => h(f.to)], ['ETA', f => h(f.eta)], ['Status', f => badge(f.status)],
+    ['', f => FLOW_NEXT[f.status] && can('edit') ? `<button class="btn sm" onclick="advanceFlow('${f.id}')">Mark ${FLOW_NEXT[f.status].toLowerCase()}</button>` : '', 'r']
+  ], F));
+  return html;
+}
+function advanceFlow(id) {
+  const f = DB.materialFlow.find(x => x.id === id); f.status = FLOW_NEXT[f.status];
+  if (f.status === 'In Transit') f.eta = 'Within 2 h';
+  if (f.status === 'Delivered') {
+    f.eta = nowHM();
+    const m = DB.materials.find(x => x.name === f.material); if (m) m.stock += f.qty;
+  }
+  persist('materialFlow', 'Update delivery', `${id} ${f.status}`); toast('Delivery updated'); refresh();
+}
+
+function pgDemand() {
+  const F = forecastMonths(6), s = DB.simSettings;
+  let html = pageHead('AI demand forecasting', 'Estimated market demand for ICE, HEV, PHEV and BEV');
+  html += kpiRow(PT.map(p => kpi(p + ', next month', fmt(F[0][p]), `${s.growth[p] > 0 ? '+' : ''}${s.growth[p]}% per month trend`)));
+  html += `<div class="grid g21">${card('Six-month forecast by powertrain', chartBox('cFc', 280))}
+    ${card('Forecast assumptions', `<ul class="clean"><li>Base demand from the latest monthly order intake.</li><li>Monthly growth per powertrain from market trend.</li><li>Assumptions are managed in Forecast & Simulation Settings.</li></ul>
+      <p class="mt muted small">This forecast is a simulation for UI demonstration and not an actual market forecast.</p>`)}</div>`;
+  forecastChart('cFc', 6);
+  html += card('Forecast detail', table([['Month', f => f.label]].concat(PT.map(p => [p, f => fmt(f[p]), 'r'])).concat([['Total', f => `<b>${fmt(f.total)}</b>`, 'r'], ['Electrified share', f => fmt((f.total - f.ICE) / f.total * 100, 1) + '%', 'r']]), F));
+  return html;
+}
+
+function pgPlanning() {
+  const s = DB.simSettings, F = forecastMonths(6);
+  const rows = F.map((f, i) => ({ label: f.label, forecast: f.total, orders: DB.orders[i] || 0, planned: i === 0 ? s.plannedVolume : Math.min(s.monthlyCapacity, f.total) }));
+  let html = pageHead('Production planning', 'Forecast demand, confirmed orders and production plan');
+  html += card('Forecast, orders and plan', chartBox('cPlan', 280));
+  mkChart('cPlan', 'bar', { labels: rows.map(r => r.label), datasets: [
+    barDs('Forecast', rows.map(r => r.forecast), C.light), barDs('Confirmed orders', rows.map(r => r.orders), C.gray), barDs('Production plan', rows.map(r => r.planned), C.blue),
+    ds('Capacity', rows.map(() => s.monthlyCapacity), C.crit, { type: 'line', borderDash: [5, 4], pointRadius: 0, borderWidth: 1.5 })
+  ] });
+  html += card('Plan detail', table([
+    ['Month', r => r.label], ['Forecast', r => fmt(r.forecast), 'r'], ['Confirmed orders', r => fmt(r.orders), 'r'],
+    ['Production plan', r => fmt(r.planned), 'r'], ['Plan vs. forecast', r => { const g = r.planned - r.forecast; return `<span class="${g < 0 ? 'down' : 'up'}">${g > 0 ? '+' : ''}${fmt(g)}</span>`; }, 'r'],
+    ['Capacity use', r => cellBar(r.planned / s.monthlyCapacity * 100, fmt(r.planned / s.monthlyCapacity * 100, 0) + '%', r.planned / s.monthlyCapacity > .95 ? C.amber : C.blue)]
+  ], rows));
+  return html;
+}
+
+function pgOptimizer() {
+  const s = DB.simSettings, ec = evaluateMix(s.currentMix), er = evaluateMix(s.recommendedMix);
+  let html = pageHead('AI production stream optimizer', 'Recommended allocation of production capacity based on forecast and constraints',
+    allowed('mix-sim') ? `<button class="btn primary" onclick="STATE.simMix=Object.assign({},DB.simSettings.recommendedMix);go('mix-sim')">Open in mix simulator</button>` : '');
+  html += `<div class="grid g2">${card('Current allocation', mixBars(s.currentMix))}${card('Recommended allocation', mixBars(s.recommendedMix) + '<p class="muted small mt">Illustration for UI demonstration. Figures are not an actual forecast or recommendation.</p>')}</div>`;
+  html += `<div class="grid g3">
+    ${card('Why this mix', `<ul class="clean"><li>PHEV and BEV demand grow ${s.growth.PHEV}% and ${s.growth.BEV}% per month.</li><li>ICE demand declines ${Math.abs(s.growth.ICE)}% per month.</li><li>The current mix produces more ICE than forecast and under-serves electrified models.</li></ul>`)}
+    ${card('Constraints', table([['Constraint', c => c[0]], ['Limit', c => c[1], 'r']], [
+      ['Monthly capacity', fmt(s.monthlyCapacity) + ' units'], ['PHEV share without changes', s.maxShare.PHEV + '%'], ['BEV share without changes', s.maxShare.BEV + '%'], ['Battery module supply', fmt(s.batterySupplyPerMonth) + ' / month']]))}
+    ${card('Expected impact', table([['Metric', r => r[0]], ['Current', r => r[1], 'r'], ['Recommended', r => `<b>${r[2]}</b>`, 'r']], [
+      ['Demand coverage', fmt(ec.coverage, 1) + '%', fmt(er.coverage, 1) + '%'], ['Battery modules', fmt(ec.modules), fmt(er.modules)],
+      ['Equipment changes', ec.mods.length ? 'Yes' : 'No', er.mods.length ? 'Yes' : 'No'], ['Lead time', ec.lead + ' wk', er.lead + ' wk']]))}</div>`;
+  return html;
+}
+
+function pgMixSim() {
+  const m = STATE.simMix;
+  let html = pageHead('Production mix simulator', 'Change the ICE/HEV/PHEV/BEV allocation and compare the impact');
+  html += `<div class="grid g12">${card('Allocation', PT.map(p => slider(p, m[p], 0, 80, 1, '%', `STATE.simMix['${p}']=+this.value;mixUpdate()`)).join('') + `
+      <div class="row mt"><button class="btn sm" onclick="STATE.simMix=Object.assign({},DB.simSettings.currentMix);refresh()">Reset to current</button>
+      <button class="btn sm" onclick="STATE.simMix=Object.assign({},DB.simSettings.recommendedMix);refresh()">Use AI recommendation</button></div>`)}
+    <div id="mixRes"></div></div>`;
+  afterQ.push(mixUpdate);
+  return html;
+}
+function mixUpdate() {
+  const m = STATE.simMix, e = evaluateMix(m), ok = e.total === 100, el = $('#mixRes'); if (!el) return;
+  el.innerHTML = `<div class="grid g4">
+      ${kpi('Total allocation', e.total + '%', ok ? 'Ready to evaluate' : '<div class="kpi-sub down">Must equal 100%</div>')}
+      ${kpi('Demand coverage', fmt(e.coverage, 1) + '%', 'Next month forecast')}
+      ${kpi('Battery modules', fmt(e.modules), e.moduleGap > 0 ? `<div class="kpi-sub down">${fmt(e.moduleGap)} above supply</div>` : 'Within supply')}
+      ${kpi('Lead time', e.lead + ' weeks', e.mods.length ? 'Equipment change needed' : 'No equipment change')}</div>
+    ${card('Planned units vs. forecast demand', chartBox('cMixSim', 230), { right: `<div class="row">${allowed('feasibility') ? `<button class="btn sm" onclick="go('feasibility')">Run feasibility check</button>` : ''}${allowed('plan-request') ? `<button class="btn sm primary" ${ok ? '' : 'disabled'} onclick="go('plan-request')">Submit for approval</button>` : ''}</div>` })}`;
+  drawChart('cMixSim', 'bar', { labels: PT, datasets: [barDs('Forecast demand', PT.map(p => e.fc[p]), C.light), barDs('Planned units', PT.map(p => e.units[p]), PT.map(p => PT_COLOR[p]))] });
+}
+
+function feasChecks(mix) {
+  const e = evaluateMix(mix), s = DB.simSettings, gapPct = e.moduleGap / s.batterySupplyPerMonth * 100;
+  return { e, checks: [
+    ['Total allocation', e.total === 100 ? 'Pass' : 'Fail', `${e.total}% allocated`],
+    ['Capacity', e.util <= 95 ? 'Pass' : e.util <= 100 ? 'Warning' : 'Fail', `${fmt(e.util, 0)}% of monthly capacity`],
+    ['Material readiness', e.moduleGap <= 0 ? 'Pass' : gapPct <= 10 ? 'Warning' : 'Fail', e.moduleGap <= 0 ? `Battery modules within supply (${fmt(e.modules)})` : `Needs ${fmt(e.moduleGap)} more battery modules per month (+${fmt(gapPct, 1)}%)`],
+    ['Equipment modification', e.mods.length ? 'Warning' : 'Pass', e.mods.length ? `${e.mods.join(', ')} above line limit; modification needed` : 'No modification needed'],
+    ['Estimated lead time', e.lead <= 4 ? 'Pass' : e.lead <= 8 ? 'Warning' : 'Fail', `${e.lead} weeks to implement`]
+  ] };
+}
+function pgFeasibility() {
+  const m = STATE.simMix, f = feasChecks(m);
+  const fails = f.checks.filter(c => c[1] === 'Fail').length, warns = f.checks.filter(c => c[1] === 'Warning').length;
+  const verdict = fails ? 'Not feasible' : warns ? 'Feasible with conditions' : 'Feasible';
+  let html = pageHead('Feasibility check', `Scenario mix ${mixText(m)} (ICE/HEV/PHEV/BEV). Change it in the mix simulator.`, allowed('mix-sim') ? `<button class="btn" onclick="go('mix-sim')">Edit scenario</button>` : '');
+  html += `<div class="grid g4">${kpi('Result', verdict, `${fails} failed, ${warns} warnings`)}${kpi('Capacity use', fmt(f.e.util, 0) + '%', '')}${kpi('Battery modules', fmt(f.e.modules), 'per month')}${kpi('Lead time', f.e.lead + ' weeks', '')}</div>`;
+  html += card('Checks', table([['Check', c => `<b>${c[0]}</b>`], ['Result', c => badge(c[1])], ['Detail', c => h(c[2])]], f.checks),
+    { right: allowed('plan-request') && !fails ? `<button class="btn sm primary" onclick="go('plan-request')">Submit for approval</button>` : '' });
+  return html;
+}
+
+function pgPlanRequest() {
+  const m = STATE.simMix, e = evaluateMix(m);
+  let html = pageHead('Plan approval request', 'Send a mix change for Engineering review and Management approval');
+  html += `<div class="grid g12">${card('New request', can('edit') ? `
+      <div class="callout" style="margin-bottom:12px">Scenario mix: <b>${mixText(m)}</b> (ICE/HEV/PHEV/BEV). ${e.total !== 100 ? 'Total must be 100%.' : ''}</div>
+      ${field('Title', inp('prTitle', ''))}${field('Reason', ta('prNotes', '', 3))}
+      <button class="btn primary" ${e.total === 100 ? '' : 'disabled'} onclick="submitPlan()">Submit for review</button>
+      <p class="muted small mt">Flow: Engineering review, then management approval.</p>` : empty('Your role cannot submit requests.'))}
+    ${card('Requests', table([
+      ['ID', r => r.id], ['Plan', r => `<b>${h(r.title)}</b><div class="muted small">${r.date}</div>`], ['Mix', r => mixText(r.mix)],
+      ['Status', r => badge(r.status)], ['Notes', r => `<span class="small">${h(r.comment || r.engineeringNote || r.notes || '–')}</span>`]
+    ], DB.changeRequests))}</div>`;
+  return html;
+}
+function submitPlan() {
+  const title = val('prTitle').trim(); if (!title) return toast('Enter a title', 'err');
+  const id = nextId(DB.changeRequests, 'PSR-', 10, 3);
+  DB.changeRequests.unshift({ id, title, mix: Object.assign({}, STATE.simMix), submittedBy: 'Production Planner', date: today(), status: 'Engineering Review', notes: val('prNotes').trim(), engineeringNote: '', comment: '' });
+  persist('changeRequests', 'Submit plan for approval', `${id} ${title}`); toast('Request submitted for engineering review'); refresh();
+}
+
+/* =========================================================
+   Plant Management
+   ========================================================= */
+function pgExec() {
+  const m = M(), k = DB.kpis, s = DB.simSettings;
+  const sec = (title, items) => card(title, `<div class="grid g2 flat">${items.map(i => `<div><div class="kpi-label">${i[0]}</div><div style="font-size:20px;font-weight:600">${i[1]}</div></div>`).join('')}</div>`);
+  let html = pageHead('Executive overview', 'KPI summary across all plant functions');
+  html += kpiRow([kpi('OEE', k.oee + '%', delta(k.oee, k.oeePrev, ' pt', true)), kpi('Attainment', fmt(m.attainment, 1) + '%', ''), kpi('FPY', k.fpy + '%', ''), kpi('Critical alerts', m.critical, '')]);
+  html += `<div class="grid g2">
+    ${sec('Production', [['Output this shift', fmt(m.output)], ['Active lines', `${m.running}/${m.totalLines}`], ['Lines over takt', DB.lines.filter(l => l.cycle > l.takt).length], ['Open alerts', m.openAlerts]])}
+    ${sec('Maintenance', [['Availability', k.availability + '%'], ['Unplanned downtime', fmt(m.downtime, 1) + ' h'], ['Open work orders', m.openWO], ['High-risk equipment', m.highRisk]])}
+    ${sec('Quality', [['Defect rate', k.defectRate + '%'], ['Scrap & rework', fmt(k.scrapRate + k.reworkRate, 1) + '%'], ['Open quality actions', m.openCA], ['Pending AI detections', DB.defects.filter(d => d.status === 'Pending Review').length]])}
+    ${sec('Logistics & planning', [['Forecast demand', fmt(m.forecast)], ['Capacity utilization', fmt(m.util, 0) + '%'], ['Material shortages', m.shortages], ['Plans awaiting review', m.plansAwaiting]])}</div>`;
+  return html;
+}
+
+function pgCrossIntel() {
+  let html = pageHead('Cross-functional factory intelligence', 'Insights that connect production, quality, maintenance and material');
+  html += `<div class="grid g2">${DB.crossInsights.map(c => card(h(c.title), `
+    <div class="row" style="margin-bottom:10px">${c.links.map(l => `<span class="badge">${h(l)}</span>`).join('')}</div>
+    <p style="font-size:13px">${h(c.evidence)}</p>
+    <p class="mt small"><b>Suggested action:</b> ${h(c.action)}</p>`)).join('')}</div>`;
+  return html;
+}
+
+const ESC = ['Owner', 'Supervisor', 'Plant Manager'];
+function pgCritAlerts() {
+  const A = openAlerts().sort(bySeverity);
+  let html = pageHead('Critical alerts', 'Priority problems and their escalation status');
+  html += `<div class="grid g4">${['Critical', 'High', 'Medium', 'Low'].map(s => kpi(s, A.filter(a => a.severity === s).length, 'Open')).join('')}</div>`;
+  html += card('Open alerts', table([
+    ['Severity', a => badge(a.severity)], ['Alert', a => `<b>${h(a.title)}</b><div class="muted small">${a.id}, ${h(a.line)}, ${a.time}</div>`],
+    ['Area', a => h(a.type)], ['Owner', a => h(a.owner)], ['Status', a => badge(a.status)],
+    ['Escalation', a => `Level ${a.escalation || 0}: ${ESC[a.escalation || 0]}`],
+    ['', a => can('edit') ? `${(a.escalation || 0) < 2 ? `<button class="btn sm" onclick="escalate('${a.id}')">Escalate</button>` : ''}` : '', 'r']
+  ], A, 'No open alerts.'));
+  return html;
+}
+function escalate(id) {
+  const a = DB.alerts.find(x => x.id === id); a.escalation = Math.min(2, (a.escalation || 0) + 1);
+  persist('alerts', 'Escalate alert', `${id} to level ${a.escalation}`); toast(`Escalated to ${ESC[a.escalation]}`); refresh();
+}
+
+function pgAiRecs() {
+  const o = { High: 0, Medium: 1, Low: 2 }, R = DB.aiRecs.slice().sort((a, b) => o[a.priority] - o[b.priority]);
+  let html = pageHead('AI recommendations', 'Improvement recommendations with evidence, estimated impact and priority');
+  html += `<div class="grid g2">${R.map(r => card(h(r.title), `
+    <div class="row" style="margin-bottom:10px">${badge(r.priority)}<span class="badge">${h(r.area)}</span>${badge(r.status)}</div>
+    <p class="small"><b>Evidence:</b> ${h(r.evidence)}</p><p class="small mt"><b>Estimated impact:</b> <span class="up">${h(r.impact)}</span></p>
+    ${can('approve') && r.status === 'New' ? `<div class="row mt"><button class="btn sm primary" onclick="setRec('${r.id}','Accepted')">Accept</button><button class="btn sm" onclick="setRec('${r.id}','Deferred')">Defer</button></div>` : ''}`)).join('')}</div>`;
+  if (!can('approve')) html += '<div class="callout">Your role can view recommendations. Accepting them requires approval rights.</div>';
+  return html;
+}
+function setRec(id, status) {
+  const r = DB.aiRecs.find(x => x.id === id); r.status = status;
+  persist('aiRecs', 'Review AI recommendation', `${id} ${status}`); toast(`Recommendation ${status.toLowerCase()}`); refresh();
+}
+
+function pgStreamApproval() {
+  const s = DB.simSettings, P = DB.changeRequests.filter(r => r.status === 'Awaiting Approval');
+  let html = pageHead('Production stream approval', 'Review product mix change requests and approve or reject them');
+  html += P.length ? P.map(r => {
+    const e = evaluateMix(r.mix), c = evaluateMix(s.currentMix);
+    return card(`${r.id} ${h(r.title)}`, `<div class="grid g3 flat">
+        <div><div class="sub-h">Current</div>${mixBars(s.currentMix)}</div>
+        <div><div class="sub-h">Proposed</div>${mixBars(r.mix)}</div>
+        <div><div class="sub-h">Impact</div><ul class="clean"><li>Demand coverage ${fmt(c.coverage, 1)}% to <b>${fmt(e.coverage, 1)}%</b></li>
+          <li>Battery modules ${fmt(e.modules)} per month${e.moduleGap > 0 ? `, <span class="down">${fmt(e.moduleGap)} above supply</span>` : ''}</li>
+          <li>${e.mods.length ? 'Equipment change needed' : 'No equipment change'}</li><li>Lead time ${e.lead} weeks</li></ul>
+          <p class="small mt"><b>Engineering:</b> ${h(r.engineeringNote || '–')}</p><p class="small muted">Submitted by ${h(r.submittedBy)} on ${r.date}</p></div></div>`,
+      { right: can('approve') ? `<div class="row"><button class="btn sm" onclick="decide('${r.id}','Rejected')">Reject</button><button class="btn sm primary" onclick="decide('${r.id}','Approved')">Approve</button></div>` : badge('Awaiting Approval') });
+  }).join('') : card('', empty('No requests awaiting approval.'));
+  html += card('Decision history', table([['ID', r => r.id], ['Plan', r => h(r.title)], ['Mix', r => mixText(r.mix)], ['Decision', r => badge(r.status)], ['Comment', r => h(r.comment || '–')]],
+    DB.changeRequests.filter(r => ['Approved', 'Rejected'].includes(r.status))));
+  return html;
+}
+function decide(id, decision) {
+  const r = DB.changeRequests.find(x => x.id === id);
+  openModal(`${decision === 'Approved' ? 'Approve' : 'Reject'} ${r.id}`, `<p style="margin-bottom:12px">${h(r.title)}. Mix ${mixText(r.mix)}.</p>${field('Comment', ta('decNote', '', 3))}`, () => {
+    r.status = decision; r.comment = val('decNote').trim() || decision;
+    if (decision === 'Approved') { DB.simSettings.currentMix = Object.assign({}, r.mix); persist('simSettings'); }
+    persist('changeRequests', decision === 'Approved' ? 'Approve stream change' : 'Reject stream change', `${r.id} ${r.title}`);
+    toast(`Request ${decision.toLowerCase()}`); refresh();
+  }, decision === 'Approved' ? 'Approve' : 'Reject');
+}
+
+function pgSimResults() {
+  const s = DB.simSettings;
+  const sc = [{ name: 'Baseline (current)', mix: s.currentMix }, { name: 'AI recommended', mix: s.recommendedMix }]
+    .concat(DB.changeRequests.filter(r => !['Approved', 'Rejected'].includes(r.status)).map(r => ({ name: `${r.id} ${r.title}`, mix: r.mix })))
+    .map(x => Object.assign(x, { e: evaluateMix(x.mix) }));
+  let html = pageHead('Simulation results', 'Compare the baseline with alternative scenarios before applying a change');
+  html += card('Demand coverage and capacity use by scenario', chartBox('cSim', 260));
+  mkChart('cSim', 'bar', { labels: sc.map(x => x.name), datasets: [barDs('Demand coverage %', sc.map(x => +x.e.coverage.toFixed(1)), C.green), barDs('Capacity use %', sc.map(x => +x.e.util.toFixed(1)), C.blue)] },
+    { scales: { y: Object.assign({ beginAtZero: false, suggestedMin: 80, max: 100 }, pctTick) } });
+  html += card('Scenario comparison', table([
+    ['Scenario', x => `<b>${h(x.name)}</b>`], ['Mix ICE/HEV/PHEV/BEV', x => mixText(x.mix)], ['Demand coverage', x => fmt(x.e.coverage, 1) + '%', 'r'],
+    ['Battery modules', x => fmt(x.e.modules) + (x.e.moduleGap > 0 ? ` <span class="down small">(+${fmt(x.e.moduleGap)})</span>` : ''), 'r'],
+    ['Equipment change', x => x.e.mods.length ? badge('Warning') : badge('OK')], ['Lead time', x => x.e.lead + ' weeks', 'r']
+  ], sc));
+  return html;
+}
+
+function pgCi() {
+  const C2 = DB.ciItems;
+  let html = pageHead('Continuous improvement tracking', 'Baseline, target, actual result and status of improvement actions');
+  html += `<div class="grid g3">${['On Track', 'At Risk', 'Off Track'].map(s => kpi(s, C2.filter(c => c.status === s).length, 'Initiatives')).join('')}</div>`;
+  html += card('Initiatives', table([
+    ['Initiative', c => `<b>${h(c.initiative)}</b><div class="muted small">${c.id}, ${h(c.owner)}</div>`], ['KPI', c => h(c.kpi)],
+    ['Baseline', c => c.baseline, 'r'], ['Target', c => c.target, 'r'], ['Actual', c => `<b>${c.actual}</b>`, 'r'],
+    ['Progress', c => { const p = (c.actual - c.baseline) / (c.target - c.baseline) * 100; return cellBar(p, fmt(Math.max(0, p), 0) + '%', c.status === 'On Track' ? C.green : c.status === 'At Risk' ? C.amber : C.crit); }],
+    ['Status', c => badge(c.status)]
+  ], C2));
+  return html;
+}
+
+/* =========================================================
+   System Administrator
+   ========================================================= */
+const OP_ROLES = ['production', 'engineering', 'quality', 'logistics', 'plant'];
+function pgUsers() {
+  let html = pageHead('User management', 'Add, edit and deactivate demo accounts and assign roles', '<button class="btn primary" onclick="editUser()">Add user</button>');
+  html += card('Users', table([
+    ['Name', u => `<b>${h(u.name)}</b><div class="muted small">${h(u.email)}</div>`], ['Position', u => h(u.position)],
+    ['Role', u => h(ROLES[u.role] ? ROLES[u.role].name : u.role)], ['Status', u => badge(u.status)],
+    ['', u => `<div class="row" style="justify-content:flex-end"><button class="btn sm" onclick="editUser('${u.id}')">Edit</button><button class="btn sm" onclick="toggleUser('${u.id}')">${u.status === 'Active' ? 'Deactivate' : 'Activate'}</button></div>`, 'r']
+  ], DB.users));
+  return html;
+}
+function editUser(id) {
+  const u = DB.users.find(x => x.id === id) || { name: '', email: '', position: '', role: 'production' };
+  openModal(id ? 'Edit user' : 'Add user', `${field('Name', inp('uName', u.name))}${field('Email', inp('uMail', u.email, 'email'))}
+    <div class="form-2">${field('Position', inp('uPos', u.position))}${field('Role', sel('uRole', Object.keys(ROLES).map(k => [k, ROLES[k].name]), u.role))}</div>`, () => {
+    const name = val('uName').trim(), email = val('uMail').trim();
+    if (!name || !email) { toast('Enter a name and email', 'err'); return false; }
+    if (id) Object.assign(u, { name, email, position: val('uPos'), role: val('uRole') });
+    else DB.users.push({ id: nextId(DB.users, 'U', 0, 2), name, email, position: val('uPos'), role: val('uRole'), status: 'Active' });
+    persist('users', id ? 'Edit user' : 'Add user', `${name} (${ROLES[val('uRole')].name})`); toast('User saved'); refresh();
+  }, id ? 'Save changes' : 'Add user');
+}
+function toggleUser(id) {
+  const u = DB.users.find(x => x.id === id); u.status = u.status === 'Active' ? 'Inactive' : 'Active';
+  persist('users', u.status === 'Active' ? 'Activate user' : 'Deactivate user', u.name); toast(`User ${u.status.toLowerCase()}`); refresh();
+}
+
+function pgPermissions() {
+  const r = STATE.permRole, p = DB.permissions[r] || {};
+  const on = p.features || FEATURES[r].map(f => f[0]);
+  const act = p.actions || { edit: true, approve: r === 'plant' };
+  let html = pageHead('Role & permissions', 'Choose which modules each role can see and which actions it may take');
+  html += `<div class="tabs">${OP_ROLES.map(k => `<button class="tab ${k === r ? 'active' : ''}" onclick="STATE.permRole='${k}';refresh()">${ROLES[k].name}</button>`).join('')}</div>`;
+  html += `<div class="grid g2">
+    ${card('Visible modules', `<p class="muted small" style="margin-bottom:6px">Plant Overview and My Dashboard are always visible.</p>` + FEATURES[r].map(f => `<label class="check"><input type="checkbox" class="permF" value="${f[0]}" ${on.includes(f[0]) ? 'checked' : ''}>${f[1]}</label>`).join(''))}
+    ${card('Allowed actions', `<label class="check"><input type="checkbox" id="pEdit" ${act.edit ? 'checked' : ''}>Create and edit records (report alerts, update status, submit requests)</label>
+      <label class="check"><input type="checkbox" id="pApprove" ${act.approve ? 'checked' : ''}>Approve changes and accept AI recommendations</label>
+      <div class="callout mt">This prototype simulates access control in the browser. Real security needs authentication and server-side checks.</div>
+      <div class="row mt"><button class="btn primary" onclick="savePerms()">Save permissions</button><button class="btn" onclick="resetPerms()">Restore defaults</button></div>`)}</div>`;
+  return html;
+}
+function savePerms() {
+  const r = STATE.permRole;
+  const features = Array.from(document.querySelectorAll('.permF')).filter(c => c.checked).map(c => c.value);
+  DB.permissions = Object.assign({}, DB.permissions, { [r]: { features, actions: { edit: $('#pEdit').checked, approve: $('#pApprove').checked } } });
+  persist('permissions', 'Update permissions', `${ROLES[r].name}: ${features.length} modules`); toast('Permissions saved'); refresh();
+}
+function resetPerms() {
+  const r = STATE.permRole; const p = Object.assign({}, DB.permissions); delete p[r]; DB.permissions = p;
+  persist('permissions', 'Restore default permissions', ROLES[r].name); toast('Defaults restored'); refresh();
+}
+
+const MASTER_TABS = [['lines', 'Production lines'], ['machines', 'Machines'], ['models', 'Vehicle models'], ['defectCategories', 'Defect categories'], ['materialCategories', 'Material categories']];
+function pgMaster() {
+  const k = STATE.masterTab, list = DB.masterData[k] || [];
+  let html = pageHead('Master data', 'Manage lines, machines, vehicle models, defect categories and material categories');
+  html += `<div class="tabs">${MASTER_TABS.map(t => `<button class="tab ${t[0] === k ? 'active' : ''}" onclick="STATE.masterTab='${t[0]}';refresh()">${t[1]}</button>`).join('')}</div>`;
+  html += `<div class="grid g12">${card('Add item', `${field('Name', inp('mNew', '', 'text', `onkeydown="if(event.key==='Enter')masterAdd()"`))}<button class="btn primary" onclick="masterAdd()">Add</button>`)}
+    ${card(`${MASTER_TABS.find(t => t[0] === k)[1]} (${list.length})`, simpleList(list.map((v, i) => ({ title: h(v), right: `<button class="btn sm ghost" onclick="masterDel(${i})">Remove</button>` }))))}</div>`;
+  return html;
+}
+function masterAdd() {
+  const v = val('mNew').trim(), k = STATE.masterTab; if (!v) return;
+  if (DB.masterData[k].includes(v)) return toast('This item already exists', 'err');
+  DB.masterData[k].push(v); persist('masterData', 'Add master data', `${k}: ${v}`); toast('Item added'); refresh();
+}
+function masterDel(i) {
+  const k = STATE.masterTab, v = DB.masterData[k][i];
+  DB.masterData[k].splice(i, 1); persist('masterData', 'Remove master data', `${k}: ${v}`); toast('Item removed'); refresh();
+}
+
+function pgAlertConfig() {
+  let html = pageHead('Alert configuration', 'Set severity, thresholds, owners and escalation rules', '<button class="btn primary" onclick="saveAlertConfig()">Save changes</button>');
+  html += card('Alert rules', table([
+    ['Area', a => badge(a.type)], ['Metric', a => `<b>${h(a.metric)}</b>`],
+    ['Threshold', (a) => `<input class="mini" id="ac_th_${a.id}" value="${h(a.threshold)}" style="min-width:120px">`],
+    ['Severity', a => sel('ac_sev_' + a.id, ['Low', 'Medium', 'High', 'Critical'], a.severity, 'class="mini"')],
+    ['Owner', a => `<input class="mini" id="ac_ow_${a.id}" value="${h(a.owner)}" style="min-width:140px">`],
+    ['Escalate after (min)', a => `<input class="mini" type="number" min="5" id="ac_min_${a.id}" value="${a.escalateMin}" style="width:80px">`],
+    ['Escalate to', a => `<input class="mini" id="ac_to_${a.id}" value="${h(a.escalateTo)}" style="min-width:150px">`]
+  ], DB.alertConfig));
+  return html;
+}
+function saveAlertConfig() {
+  DB.alertConfig.forEach(a => {
+    a.threshold = val('ac_th_' + a.id); a.severity = val('ac_sev_' + a.id); a.owner = val('ac_ow_' + a.id);
+    a.escalateMin = +val('ac_min_' + a.id) || a.escalateMin; a.escalateTo = val('ac_to_' + a.id);
+  });
+  persist('alertConfig', 'Update alert configuration', `${DB.alertConfig.length} rules saved`); toast('Alert rules saved'); refresh();
+}
+
+function pgWiMgmt() {
+  let html = pageHead('Work instruction management', 'Add or edit demo work instructions', '<button class="btn primary" onclick="editWI()">Add instruction</button>');
+  html += card('Work instructions', table([
+    ['ID', w => w.id], ['Title', w => `<b>${h(w.title)}</b>`], ['Category', w => h(w.category)],
+    ['Audience', w => w.audience === 'production' ? 'Production & Operations' : 'Engineering & Maintenance'], ['Steps', w => w.steps.length, 'r'],
+    ['', w => `<div class="row" style="justify-content:flex-end"><button class="btn sm" onclick="editWI('${w.id}')">Edit</button><button class="btn sm ghost" onclick="deleteWI('${w.id}')">Delete</button></div>`, 'r']
+  ], DB.workInstructions));
+  return html;
+}
+function editWI(id) {
+  const w = DB.workInstructions.find(x => x.id === id) || { title: '', category: 'Checklist', audience: 'production', steps: [] };
+  openModal(id ? 'Edit work instruction' : 'Add work instruction', `${field('Title', inp('wTitle', w.title))}
+    <div class="form-2">${field('Category', sel('wCat', ['Checklist', 'Abnormality', 'Inspection', 'Troubleshooting', 'Preventive Maintenance'], w.category))}
+    ${field('Audience', sel('wAud', [['production', 'Production & Operations'], ['engineering', 'Engineering & Maintenance']], w.audience))}</div>
+    ${field('Steps (one per line)', ta('wSteps', w.steps.join('\n'), 6))}`, () => {
+    const title = val('wTitle').trim(), steps = val('wSteps').split('\n').map(s => s.trim()).filter(Boolean);
+    if (!title || !steps.length) { toast('Enter a title and at least one step', 'err'); return false; }
+    const aud = val('wAud');
+    if (id) Object.assign(w, { title, category: val('wCat'), audience: aud, steps });
+    else {
+      const pre = aud === 'production' ? 'WI-P' : 'WI-E';
+      DB.workInstructions.push({ id: nextId(DB.workInstructions.filter(x => x.id.startsWith(pre)), pre, 0, 2), title, category: val('wCat'), audience: aud, steps });
+    }
+    persist('workInstructions', id ? 'Edit work instruction' : 'Add work instruction', title); toast('Work instruction saved'); refresh();
+  }, 'Save instruction');
+}
+function deleteWI(id) {
+  const w = DB.workInstructions.find(x => x.id === id);
+  openModal('Delete work instruction', `<p>Delete <b>${h(w.title)}</b>? This cannot be undone, except by resetting the demo data.</p>`, () => {
+    DB.workInstructions = DB.workInstructions.filter(x => x.id !== id);
+    persist('workInstructions', 'Delete work instruction', `${id} ${w.title}`); toast('Work instruction deleted'); refresh();
+  }, 'Delete');
+}
+
+function pgSimSettings() {
+  const s = DB.simSettings;
+  const ptRow = (prefix, obj, step) => `<div class="grid g4 flat">${PT.map(p => field(p, inp(`${prefix}_${p}`, obj[p], 'number', `step="${step}"`))).join('')}</div>`;
+  let html = pageHead('Forecast & simulation settings', 'Demand assumptions, capacity and simulation parameters', '<button class="btn primary" onclick="saveSimSettings()">Save settings</button>');
+  html += card('Base monthly demand (units)', ptRow('sb', s.baseDemand, 100));
+  html += card('Monthly demand growth (%)', ptRow('sg', s.growth, 0.5));
+  html += card('Capacity and constraints', `<div class="grid g4 flat">
+    ${field('Monthly capacity (units)', inp('sCap', s.monthlyCapacity, 'number'))}${field('Planned volume (units)', inp('sVol', s.plannedVolume, 'number'))}
+    ${field('Max PHEV share (%)', inp('sPhev', s.maxShare.PHEV, 'number'))}${field('Max BEV share (%)', inp('sBev', s.maxShare.BEV, 'number'))}
+    ${field('Battery module supply / month', inp('sBat', s.batterySupplyPerMonth, 'number'))}${field('Shift length (h)', inp('sShift', s.shiftHours, 'number'))}</div>`);
+  html += card('Recommended mix used by the optimizer (%)', ptRow('sr', s.recommendedMix, 1) + '<p class="muted small">Must add up to 100%.</p>');
+  return html;
+}
+function saveSimSettings() {
+  const s = DB.simSettings, rec = {};
+  PT.forEach(p => { rec[p] = +val('sr_' + p) || 0; });
+  if (sum(PT.map(p => rec[p])) !== 100) return toast('Recommended mix must add up to 100%', 'err');
+  PT.forEach(p => { s.baseDemand[p] = +val('sb_' + p) || 0; s.growth[p] = +val('sg_' + p) || 0; });
+  s.recommendedMix = rec;
+  s.monthlyCapacity = +val('sCap') || s.monthlyCapacity; s.plannedVolume = +val('sVol') || s.plannedVolume;
+  s.maxShare = { PHEV: +val('sPhev') || 0, BEV: +val('sBev') || 0 };
+  s.batterySupplyPerMonth = +val('sBat') || s.batterySupplyPerMonth; s.shiftHours = +val('sShift') || s.shiftHours;
+  persist('simSettings', 'Update simulation settings', `Capacity ${s.monthlyCapacity}, planned ${s.plannedVolume}`); toast('Settings saved'); refresh();
+}
+
+function pgAudit() {
+  const html = pageHead('Audit trail', 'History of data changes and user actions') +
+    card('Activity', `<div class="filters" style="margin-bottom:14px">${inp('auQ', STATE.auditQ, 'search', `placeholder="Search action, role or detail" oninput="STATE.auditQ=this.value;auditUpdate()"`)}</div><div id="auditTbl"></div>`);
+  afterQ.push(auditUpdate);
+  return html;
+}
+function auditUpdate() {
+  const q = STATE.auditQ.toLowerCase();
+  const rows = (DB.audit || []).filter(a => !q || (a.action + ' ' + a.role + ' ' + a.detail + ' ' + a.user).toLowerCase().includes(q));
+  const el = $('#auditTbl'); if (!el) return;
+  el.innerHTML = table([['Time', a => fmtTime(a.time)], ['User', a => h(a.user)], ['Action', a => `<b>${h(a.action)}</b>`], ['Detail', a => h(a.detail)]], rows, 'No activity found.');
+}
+
+function pgDataMgmt() {
+  const stored = (DB.meta && DB.meta.storedKeys) || [];
+  let html = pageHead('Data management', 'Reset and restore the demo dataset');
+  html += `<div class="grid g12">${card('Reset demo data', `<p style="margin-bottom:12px">Restores every editable collection to its original demo values. Use this before a new demo session.</p>
+      <button class="btn primary" onclick="resetData()">Reset demo data</button>`)}
+    ${card('Editable collections', table([['Collection', k => k], ['State at last load', k => stored.includes(k) ? badge('Changed') : badge('Default')]], COLLECTIONS) + '<p class="muted small mt">State reflects the last time the app loaded. Data is stored in Script Properties.</p>')}</div>`;
+  return html;
+}
+function resetData() {
+  openModal('Reset demo data', '<p>All changes made in the app will be replaced with the original demo dataset. Continue?</p>', () => {
+    if (!hasGAS()) return;
+    google.script.run.withSuccessHandler(d => { DB = d; normalize(); toast('Demo data restored'); refresh(); })
+      .withFailureHandler(e => toast('Reset failed: ' + e.message, 'err')).resetDemoData();
+  }, 'Reset data');
+}
+
+function pgSysStatus() {
+  const integ = [['MES / production counters', 'Not connected'], ['PLC / SCADA machine data', 'Not connected'], ['ERP (materials, orders)', 'Not connected'], ['Vision camera stream', 'Not connected'], ['Single sign-on', 'Not connected'], ['AI / LLM service', 'Rule-based simulation']];
+  let html = pageHead('System status', 'Active modules, data sources and integrations not yet available');
+  html += kpiRow([kpi('Roles', Object.keys(ROLES).length, '5 operational + admin'), kpi('Modules enabled', sum(OP_ROLES.map(r => allowedFeatures(r).length)) + ' / ' + sum(OP_ROLES.map(r => FEATURES[r].length)), 'Operational roles'), kpi('Data source', 'Simulated', 'Script Properties'), kpi('Last load', fmtTime(DB.meta ? DB.meta.loadedAt : new Date().toISOString()), '')]);
+  html += `<div class="grid g2">${card('Active modules per role', table([['Role', r => ROLES[r].name], ['Modules', r => `${allowedFeatures(r).length} of ${FEATURES[r].length}`, 'r'], ['Status', r => badge(allowedFeatures(r).length ? 'Active' : 'Disabled')]], OP_ROLES))}
+    ${card('Integrations', table([['Integration', i => i[0]], ['Status', i => `<span class="badge">${i[1]}</span>`]], integ))}</div>`;
+  html += '<div class="callout">This is a prototype. Role selection and permissions simulate access control and are not a security system. All data is simulated.</div>';
+  return html;
+}
+
+/* ---------- Page registry ---------- */
+const PAGES = {
+  overview: pgOverview, dashboard: pgRoleDashboard,
+  'prod-monitor': pgProdMonitor, 'ai-ops': pgAiOps, 'work-instr': pgWorkInstr, 'alert-report': pgAlertReport, chatbot: pgChatbot,
+  'equip-health': pgEquipHealth, predictive: pgPredictive, 'work-orders': pgWorkOrders, rca: pgRca, 'eng-change': pgEngChange, 'sim-lab': pgSimLab, 'tech-wi': pgTechWi,
+  inspection: pgInspection, 'ai-vision': pgAiVision, traceability: pgTraceability, 'q-analytics': pgQAnalytics, 'q-rca': pgQRca, capa: pgCapa, 'q-alerts': pgQAlerts,
+  inventory: pgInventory, 'material-flow': pgMaterialFlow, demand: pgDemand, planning: pgPlanning, optimizer: pgOptimizer, 'mix-sim': pgMixSim, feasibility: pgFeasibility, 'plan-request': pgPlanRequest,
+  exec: pgExec, 'cross-intel': pgCrossIntel, 'crit-alerts': pgCritAlerts, 'ai-recs': pgAiRecs, 'stream-approval': pgStreamApproval, 'sim-results': pgSimResults, ci: pgCi,
+  users: pgUsers, permissions: pgPermissions, master: pgMaster, 'alert-config': pgAlertConfig, 'wi-mgmt': pgWiMgmt, 'sim-settings': pgSimSettings, audit: pgAudit, 'data-mgmt': pgDataMgmt, 'sys-status': pgSysStatus
+};
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+window.addEventListener('load', boot);
+
+</script>
+<script src="/agents.js"></script>
+</body>
