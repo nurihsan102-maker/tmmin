@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
-<script src="/shim.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script defer src="/shim.js"></script>
 <style>
 :root{
   --red:#EB0A1E; --charcoal:#202124; --gray:#3C4043; --white:#FFFFFF; --bg:#F4F5F6; --border:#DADCE0;
@@ -67,6 +67,11 @@ button,input,select,textarea{font-family:inherit;line-height:1.5}
 .nav a:hover{background:var(--soft)}
 .nav a.active{background:#FDECEE;color:var(--red);font-weight:600;border-left-color:var(--red)}
 .side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.nav-toggle{display:none}
+.nav a:focus-visible,.nav-toggle:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+.progress > span.indet{width:35%;animation:indet 1.2s ease-in-out infinite}
+@keyframes indet{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion: reduce){.progress > span.indet{animation:none;width:100%;opacity:.45}}
 .topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 28px;position:sticky;top:0;z-index:5}
 .topbar h1{font-size:16px}
 .topbar .crumb{font-size:12px;color:var(--muted)}
@@ -259,6 +264,11 @@ input[type=range]{padding:0;border:none;accent-color:var(--red);box-shadow:none}
   .content{padding:18px 16px 40px}
   .topbar{padding:0 16px}
   .form-2{grid-template-columns:1fr}
+  .nav-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:4px;padding:10px 12px;border:1px solid #5F6368;border-radius:10px;background:#3C4043;color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-align:left}
+  .nav-toggle::after{content:"+";font-size:18px;line-height:1}
+  .sidebar.nav-open .nav-toggle::after{content:"−"}
+  .sidebar .nav{display:none;max-height:55vh;overflow-y:auto;margin-top:6px}
+  .sidebar.nav-open .nav{display:block}
 }
 </style>
 </head>
@@ -432,7 +442,8 @@ function enter(role) {
     <aside class="sidebar">
       <div class="brand"><div class="brand-mark">SF</div><div>Smart Factory Platform<span class="brand-sub">PT Toyota Motor Manufacturing Indonesia</span></div></div>
       <div class="side-role"><div class="ric sm">${ICONS[role]}</div><div>${r.name}</div></div>
-      <nav class="nav">${navHtml}</nav>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="siteNav" onclick="toggleNav(this)">Menu · ${titleOf(items[0][0])}</button>
+      <nav class="nav" id="siteNav" aria-label="Main">${navHtml}</nav>
       <div class="side-foot">Signed in as demo user<br>${r.name}</div>
     </aside>
     <div>
@@ -449,7 +460,11 @@ function enter(role) {
   </div>`;
   go(items[0][0]);
 }
-function navLink(x) { return `<a data-p="${x[0]}" onclick="go('${x[0]}')">${x[1]}</a>`; }
+function navLink(x) { return `<a href="#${x[0]}" data-p="${x[0]}" onclick="event.preventDefault();go('${x[0]}')">${x[1]}</a>`; }
+function toggleNav(btn) {
+  const open = btn.closest('.sidebar').classList.toggle('nav-open');
+  btn.setAttribute('aria-expanded', String(open));
+}
 
 function go(p, keepScroll) {
   if (!allowed(p)) p = navList()[0][0];
@@ -459,6 +474,12 @@ function go(p, keepScroll) {
   const y = window.scrollY;
   $('#content').innerHTML = PAGES[p]();
   document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.p === p));
+  const toggle = document.querySelector('.nav-toggle');
+  if (toggle) {
+    toggle.textContent = 'Menu · ' + titleOf(p);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.closest('.sidebar').classList.remove('nav-open');
+  }
   const q = afterQ; afterQ = []; q.forEach(f => f());
   window.scrollTo(0, keepScroll ? y : 0);
 }

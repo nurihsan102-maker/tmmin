@@ -21,18 +21,36 @@
     var log = state.log.map(function (m) {
       return '<div class="msg ' + (m.who === 'user' ? 'user' : 'bot') + '">' + m.html + '</div>';
     }).join('');
-    el.innerHTML =
+    var prev = document.getElementById('agentQ');
+    var draft = prev ? prev.value : '';
+    var hadFocus = !!prev && document.activeElement === prev;
+    el.innerHTML = liveBadge() +
       '<div class="card chat"><div class="chat-sug">' +
       '<button class="btn sm' + (state.mode === 'war' ? ' primary' : '') + '" onclick="agentMode(\'war\')">War room (all discuss)</button>' +
       '<button class="btn sm' + (state.mode === 'one' ? ' primary' : '') + '" onclick="agentMode(\'one\')">Ask one agent</button></div>' +
       (state.mode === 'one' ? '<div class="chat-sug">' + chips + '</div>' : '') +
-      '<div class="chat-log" id="agentLog">' + (log || '<div class="msg bot"><p>Ask a question about inspection, downtime, knowledge, line flexibility or cost. The agents run on claude-haiku-5-5.</p></div>') + '</div>' +
+      '<div class="chat-log" id="agentLog">' + (log || '<div class="msg bot"><p>Ask a question about inspection, downtime, knowledge, line flexibility or cost.</p></div>') + (state.busy ? busyHtml() : '') + '</div>' +
       '<div class="chat-in"><input id="agentQ" placeholder="Ask the team…" onkeydown="if(event.key===\'Enter\')agentSend()"><button class="btn primary" onclick="agentSend()"' + (state.busy ? ' disabled' : '') + '>' + (state.busy ? 'Thinking…' : 'Send') + '</button></div></div>' +
-      '<p class="small muted mt">' + (state.live === false ? 'Offline mode: no API key set, answers come from stored data only.' : 'Model: claude-haiku-5-5. Simulated data.') + '</p>';
+      '<p class="small muted mt">Answers are based on simulated data.</p>';
     var log2 = document.getElementById('agentLog'); if (log2) log2.scrollTop = log2.scrollHeight;
+    var input = document.getElementById('agentQ');
+    if (input) { input.value = draft; if (hadFocus) input.focus(); }
   }
 
   function pushBot(html) { state.log.push({ who: 'bot', html: html }); }
+
+  function liveBadge() {
+    var m = state.live === true ? '<span class="badge b-green">Live · Haiku answers</span>'
+      : state.live === false ? '<span class="badge b-amber">Offline · stored data only</span>'
+      : '<span class="badge">Checking mode…</span>';
+    return '<div class="row" style="margin-bottom:10px">' + m + '</div>';
+  }
+
+  function busyHtml() {
+    var t = state.mode === 'war' ? 'War room: specialists are answering and discussing' : 'Agent is thinking';
+    return '<div class="msg bot" role="status" aria-live="polite"><p><b>' + t + '…</b></p>' +
+      '<div class="progress"><span class="indet"></span></div><p class="small muted mt">Usually 10–30 seconds.</p></div>';
+  }
 
   window.agentMode = function (m) { state.mode = m; render(); };
   window.agentPick = function (id) { state.agent = id; state.mode = 'one'; render(); };
@@ -41,6 +59,7 @@
     var q = (document.getElementById('agentQ') || {}).value || '';
     q = q.trim();
     if (!q || state.busy) return;
+    var input = document.getElementById('agentQ'); if (input) input.value = '';
     state.log.push({ who: 'user', html: esc(q) });
     state.busy = true; render();
     var req = state.mode === 'war'
@@ -70,7 +89,9 @@
   fetch('/api/agents/status').then(function (r) { return r.json(); }).then(function (j) {
     j.agents.forEach(function (a) { NAMES[a.id] = a.name; });
     state.live = j.live;
+    render();
   }).catch(function () {});
 
-  window.PAGES.agents = function () { var html = renderAgentsPage(); setTimeout(render, 0); return html; };
+  // PAGES is a top-level const in index.html, so it is not on window; reference it by name.
+  PAGES.agents = function () { var html = renderAgentsPage(); setTimeout(render, 0); return html; };
 })();
