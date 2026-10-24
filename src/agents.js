@@ -3,8 +3,6 @@
  * Every agent calls the same model: claude-haiku-5-5.
  * Case text from the M3C casebook is NOT sent to the model unless CASE_CONTEXT_ENABLED = "true".
  */
-import Anthropic from '@anthropic-ai/sdk';
-
 export const MODEL = 'claude-haiku-5-5';
 const API_TIMEOUT_MS = 12_000;   // per Haiku call; a slow or failed call falls back to offline answers, no retries
 const RESULT_CACHE_S = 300;      // identical live answers are reused for 5 minutes (saves paid Haiku calls)
@@ -59,16 +57,9 @@ const ROUTE_HINTS = {
 /** Optional case text. Off by default; see CASE_CONTEXT_ENABLED in wrangler.jsonc. */
 const CASE_SUMMARY = `Case (M3C 2026, TMMIN): conversion cost index 106 vs. new-entrant benchmark 89; scrap 108, downtime 111, escaped defects 103 (2023 = 100); non-value-added operator time 22%; equipment modification 9 months per new variant; 48% of critical processes depend on 1–2 seniors; engineers 65% routine work; 2 of 30 engineers proficient in software and AI.`;
 
-let clientCache = null;
-let clientKey = null;
-function client(env) {
-  const key = env.ANTHROPIC_API_KEY;
-  if (!key) return null;
-  if (!clientCache || clientKey !== key) {
-    clientCache = new Anthropic({ apiKey: key, timeout: API_TIMEOUT_MS, maxRetries: 0 });
-    clientKey = key;
-  }
-  return clientCache;
+/** Plain fetch to the Messages API (no SDK), so it runs on Cloudflare Pages Functions. */
+function apiKey(env) {
+  return env.ANTHROPIC_API_KEY || null;
 }
 
 function snapshotText(snap) {
@@ -99,18 +90,32 @@ function systemFor(id, env, snap) {
 
 /** Returns the reply text, or null when there is no key or the API call fails (never throws). */
 async function callHaiku(env, system, messages, maxTokens = 600) {
-  const c = client(env);
-  if (!c) return null;
+  const key = apiKey(env);
+  if (!key) return null;
   try {
-    const res = await c.messages.create({
-      model: modelName(env),
-      max_tokens: maxTokens,
-      system,
-      messages
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: modelName(env),
+        max_tokens: maxTokens,
+        system,
+        messages
+      }),
+      signal: AbortSignal.timeout(API_TIMEOUT_MS)
     });
-    return res.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim() || null;
+    if (!res.ok) {
+      console.error('Haiku call failed:', res.status);
+      return null;
+    }
+    const data = await res.json();
+    return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim() || null;
   } catch (err) {
-    console.error('Haiku call failed:', err && (err.status || err.name), err && err.message);
+    console.error('Haiku call failed:', err && (err.name || 'error'), err && err.message);
     return null;
   }
 }
@@ -159,7 +164,7 @@ export async function askAgent(env, snap, id, message, history = []) {
   return cachedLive(JSON.stringify(['chat', id, message, history]), async () => {
     const msgs = [...history, { role: 'user', content: message }];
     const reply = await callHaiku(env, systemFor(id, env, snap), msgs);
-    const reason = client(env) ? 'live model unavailable' : 'no API key set';
+    const reason = apiKey(env) ? 'live model unavailable' : 'no API key set';
     return { agent: id, live: !!reply, reply: reply || offlineReply(id, message, snap, reason) };
   });
 }
@@ -180,7 +185,7 @@ export async function warRoom(env, snap, question) {
     const answered = team.map((id, i) => ({ agent: id, text: first[i] })).filter(r => r.text);
 
     if (!answered.length) {
-      const reason = client(env) ? 'live model unavailable' : 'no API key set';
+      const reason = apiKey(env) ? 'live model unavailable' : 'no API key set';
       return {
         live: false, route,
         rounds: { answers: team.map(id => ({ agent: id, reply: offlineReply(id, question, snap, reason) })), discussion: [] },
