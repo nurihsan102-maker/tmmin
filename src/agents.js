@@ -6,6 +6,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 export const MODEL = 'claude-haiku-5-5';
+const API_TIMEOUT_MS = 12_000;   // per Haiku call; a slow or failed call falls back to offline answers, no retries
+const RESULT_CACHE_S = 300;      // identical live answers are reused for 5 minutes (saves paid Haiku calls)
+
+export const modelName = env => env.AGENT_MODEL || MODEL;
 
 export const AGENTS = {
   coordinator: {
@@ -55,8 +59,16 @@ const ROUTE_HINTS = {
 /** Optional case text. Off by default; see CASE_CONTEXT_ENABLED in wrangler.jsonc. */
 const CASE_SUMMARY = `Case (M3C 2026, TMMIN): conversion cost index 106 vs. new-entrant benchmark 89; scrap 108, downtime 111, escaped defects 103 (2023 = 100); non-value-added operator time 22%; equipment modification 9 months per new variant; 48% of critical processes depend on 1–2 seniors; engineers 65% routine work; 2 of 30 engineers proficient in software and AI.`;
 
+let clientCache = null;
+let clientKey = null;
 function client(env) {
-  return env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: env.ANTHROPIC_API_KEY }) : null;
+  const key = env.ANTHROPIC_API_KEY;
+  if (!key) return null;
+  if (!clientCache || clientKey !== key) {
+    clientCache = new Anthropic({ apiKey: key, timeout: API_TIMEOUT_MS, maxRetries: 0 });
+    clientKey = key;
+  }
+  return clientCache;
 }
 
 function snapshotText(snap) {
@@ -85,25 +97,57 @@ function systemFor(id, env, snap) {
   return parts.join('\n\n');
 }
 
+/** Returns the reply text, or null when there is no key or the API call fails (never throws). */
 async function callHaiku(env, system, messages, maxTokens = 600) {
   const c = client(env);
   if (!c) return null;
-  const res = await c.messages.create({
-    model: MODEL,
-    max_tokens: maxTokens,
-    system,
-    messages
-  });
-  return res.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+  try {
+    const res = await c.messages.create({
+      model: modelName(env),
+      max_tokens: maxTokens,
+      system,
+      messages
+    });
+    return res.content.filter(b => b.type === 'text').map(b => b.text).join('\n').trim() || null;
+  } catch (err) {
+    console.error('Haiku call failed:', err && (err.status || err.name), err && err.message);
+    return null;
+  }
 }
 
-/** Offline demo answer used when no API key is configured. */
-function offlineReply(id, question, snap) {
+async function digest(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** Reuse a live answer for identical requests. Offline answers are never cached. */
+async function cachedLive(key, compute) {
+  const cache = globalThis.caches && caches.default;
+  if (!cache) return compute();
+  let url = null;
+  try {
+    url = 'https://agent-cache.internal/' + await digest(key);
+    const hit = await cache.match(url);
+    if (hit) return await hit.json();
+  } catch (e) { url = null; }
+  const out = await compute();
+  if (out.live && url) {
+    try {
+      await cache.put(url, new Response(JSON.stringify(out), {
+        headers: { 'content-type': 'application/json', 'cache-control': `max-age=${RESULT_CACHE_S}` }
+      }));
+    } catch (e) { /* cache is best-effort */ }
+  }
+  return out;
+}
+
+/** Offline demo answer used when no API key is configured or the model call fails. */
+function offlineReply(id, question, snap, reason = 'no API key set') {
   const words = question.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 3);
   const hit = (txt) => words.some(w => String(txt).toLowerCase().includes(w));
   const kb = (snap.knowledge || []).filter(x => hit(x.title + ' ' + x.symptom + ' ' + x.rootCause)).slice(0, 2);
   const al = (snap.alerts || []).filter(a => a.status !== 'Resolved' && hit(a.title + ' ' + a.line)).slice(0, 2);
-  let out = `[Offline mode: no API key set. ${AGENTS[id].name} is using stored data only.]\n`;
+  let out = `[Offline mode: ${reason}. ${AGENTS[id].name} is using stored data only.]\n`;
   if (kb.length) out += 'Related knowledge: ' + kb.map(x => `${x.id} ${x.title} (source: ${x.source})`).join('; ') + '.\n';
   if (al.length) out += 'Related alerts: ' + al.map(a => `${a.id} ${a.title}`).join('; ') + '.\n';
   if (!kb.length && !al.length) out += 'No matching records in the stored data. Add the API key to get a live answer.';
@@ -112,56 +156,69 @@ function offlineReply(id, question, snap) {
 
 export async function askAgent(env, snap, id, message, history = []) {
   if (!AGENTS[id]) throw new Error('Unknown agent: ' + id);
-  const msgs = [...history.slice(-6), { role: 'user', content: message }];
-  const reply = await callHaiku(env, systemFor(id, env, snap), msgs);
-  return { agent: id, live: !!reply, reply: reply || offlineReply(id, message, snap) };
+  return cachedLive(JSON.stringify(['chat', id, message, history]), async () => {
+    const msgs = [...history, { role: 'user', content: message }];
+    const reply = await callHaiku(env, systemFor(id, env, snap), msgs);
+    const reason = client(env) ? 'live model unavailable' : 'no API key set';
+    return { agent: id, live: !!reply, reply: reply || offlineReply(id, message, snap, reason) };
+  });
 }
 
 /**
  * War room: coordinator routes the question; chosen specialists answer in parallel,
  * then each sees the others' answers and responds once (discussion round);
- * coordinator writes the synthesis.
+ * coordinator writes the synthesis. Up to 7 Haiku calls per question, fewer when cached or failing.
  */
 export async function warRoom(env, snap, question) {
-  const live = !!client(env);
-  const picked = Object.keys(ROUTE_HINTS).filter(id => ROUTE_HINTS[id].test(question));
-  const team = picked.length ? picked.slice(0, 3) : ['s1', 's2', 's3'];
+  return cachedLive(JSON.stringify(['war', question]), async () => {
+    const picked = Object.keys(ROUTE_HINTS).filter(id => ROUTE_HINTS[id].test(question));
+    const team = picked.length ? picked.slice(0, 3) : ['s1', 's2', 's3'];
+    const route = team.map(id => ({ id, name: AGENTS[id].name }));
 
-  const round1 = await Promise.all(team.map(async id => {
-    const reply = await callHaiku(env, systemFor(id, env, snap), [{ role: 'user', content: question }]);
-    return { agent: id, reply: reply || offlineReply(id, question, snap) };
-  }));
+    const first = await Promise.all(team.map(id =>
+      callHaiku(env, systemFor(id, env, snap), [{ role: 'user', content: question }])));
+    const answered = team.map((id, i) => ({ agent: id, text: first[i] })).filter(r => r.text);
 
-  let round2 = [];
-  if (live) {
-    round2 = await Promise.all(round1.map(async me => {
-      const others = round1.filter(o => o.agent !== me.agent)
-        .map(o => `${AGENTS[o.agent].name}: ${o.reply}`).join('\n\n');
+    if (!answered.length) {
+      const reason = client(env) ? 'live model unavailable' : 'no API key set';
+      return {
+        live: false, route,
+        rounds: { answers: team.map(id => ({ agent: id, reply: offlineReply(id, question, snap, reason) })), discussion: [] },
+        synthesis: `[Offline mode: ${reason}. Set ANTHROPIC_API_KEY to enable the discussion and synthesis.] Routed to: ${route.map(r => r.name).join(', ')}.`
+      };
+    }
+
+    const discussion = await Promise.all(answered.map(async me => {
+      const others = answered.filter(o => o.agent !== me.agent)
+        .map(o => `${AGENTS[o.agent].name}: ${o.text}`).join('\n\n');
+      if (!others) return { agent: me.agent, reply: '' };
       const reply = await callHaiku(
         env,
         systemFor(me.agent, env, snap),
-        [{ role: 'user', content: `Question: ${question}\n\nYour first answer:\n${me.reply}\n\nOther specialists:\n${others}\n\nIn at most 60 words: do you agree or disagree with anyone, and what must change in your view? If nothing changes, say "No change."` }],
+        [{ role: 'user', content: `Question: ${question}\n\nYour first answer:\n${me.text}\n\nOther specialists:\n${others}\n\nIn at most 60 words: do you agree or disagree with anyone, and what must change in your view? If nothing changes, say "No change."` }],
         200
       );
       return { agent: me.agent, reply: reply || '' };
     }));
-  }
 
-  let synthesis = '';
-  if (live) {
-    const transcript = round1.map(r => {
-      const d = round2.find(x => x.agent === r.agent);
-      return `${AGENTS[r.agent].name}\nAnswer: ${r.reply}\nDiscussion: ${d ? d.reply : ''}`;
+    const transcript = answered.map(r => {
+      const d = discussion.find(x => x.agent === r.agent);
+      return `${AGENTS[r.agent].name}\nAnswer: ${r.text}\nDiscussion: ${d ? d.reply : ''}`;
     }).join('\n\n');
-    synthesis = await callHaiku(
+    const synthesis = await callHaiku(
       env,
       AGENTS.coordinator.prompt + '\nWrite a short recommendation for plant leadership: the decision, the first 3 actions with owners, and the open risks. Use the same language as the question.',
       [{ role: 'user', content: `Question: ${question}\n\nTeam transcript:\n${transcript}` }],
       700
     );
-  } else {
-    synthesis = '[Offline mode: set ANTHROPIC_API_KEY to enable the discussion and synthesis.] Routed to: ' + team.map(id => AGENTS[id].name).join(', ') + '.';
-  }
 
-  return { live, route: team.map(id => ({ id, name: AGENTS[id].name })), rounds: { answers: round1, discussion: round2 }, synthesis };
+    return {
+      live: true, route,
+      rounds: {
+        answers: team.map((id, i) => ({ agent: id, reply: first[i] || offlineReply(id, question, snap, 'live model unavailable') })),
+        discussion
+      },
+      synthesis: synthesis || 'The coordinator synthesis is unavailable right now. Read the specialist answers above.'
+    };
+  });
 }

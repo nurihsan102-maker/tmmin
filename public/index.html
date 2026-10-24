@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
-<script src="/shim.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script defer src="/shim.js"></script>
 <style>
 :root{
   --red:#EB0A1E; --charcoal:#202124; --gray:#3C4043; --white:#FFFFFF; --bg:#F4F5F6; --border:#DADCE0;
@@ -67,6 +67,11 @@ button,input,select,textarea{font-family:inherit;line-height:1.5}
 .nav a:hover{background:var(--soft)}
 .nav a.active{background:#FDECEE;color:var(--red);font-weight:600;border-left-color:var(--red)}
 .side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.nav-toggle{display:none}
+.nav a:focus-visible,.nav-toggle:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+.progress > span.indet{width:35%;animation:indet 1.2s ease-in-out infinite}
+@keyframes indet{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion: reduce){.progress > span.indet{animation:none;width:100%;opacity:.45}}
 .topbar{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 28px;position:sticky;top:0;z-index:5}
 .topbar h1{font-size:16px}
 .topbar .crumb{font-size:12px;color:var(--muted)}
@@ -259,6 +264,11 @@ input[type=range]{padding:0;border:none;accent-color:var(--red);box-shadow:none}
   .content{padding:18px 16px 40px}
   .topbar{padding:0 16px}
   .form-2{grid-template-columns:1fr}
+  .nav-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:4px;padding:10px 12px;border:1px solid #5F6368;border-radius:10px;background:#3C4043;color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-align:left}
+  .nav-toggle::after{content:"+";font-size:18px;line-height:1}
+  .sidebar.nav-open .nav-toggle::after{content:"−"}
+  .sidebar .nav{display:none;max-height:55vh;overflow-y:auto;margin-top:6px}
+  .sidebar.nav-open .nav{display:block}
 }
 </style>
 </head>
@@ -432,7 +442,8 @@ function enter(role) {
     <aside class="sidebar">
       <div class="brand"><div class="brand-mark">SF</div><div>Smart Factory Platform<span class="brand-sub">PT Toyota Motor Manufacturing Indonesia</span></div></div>
       <div class="side-role"><div class="ric sm">${ICONS[role]}</div><div>${r.name}</div></div>
-      <nav class="nav">${navHtml}</nav>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="siteNav" onclick="toggleNav(this)">Menu · ${titleOf(items[0][0])}</button>
+      <nav class="nav" id="siteNav" aria-label="Main">${navHtml}</nav>
       <div class="side-foot">Signed in as demo user<br>${r.name}</div>
     </aside>
     <div>
@@ -449,7 +460,11 @@ function enter(role) {
   </div>`;
   go(items[0][0]);
 }
-function navLink(x) { return `<a data-p="${x[0]}" onclick="go('${x[0]}')">${x[1]}</a>`; }
+function navLink(x) { return `<a href="#${x[0]}" data-p="${x[0]}" onclick="event.preventDefault();go('${x[0]}')">${x[1]}</a>`; }
+function toggleNav(btn) {
+  const open = btn.closest('.sidebar').classList.toggle('nav-open');
+  btn.setAttribute('aria-expanded', String(open));
+}
 
 function go(p, keepScroll) {
   if (!allowed(p)) p = navList()[0][0];
@@ -459,6 +474,12 @@ function go(p, keepScroll) {
   const y = window.scrollY;
   $('#content').innerHTML = PAGES[p]();
   document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.p === p));
+  const toggle = document.querySelector('.nav-toggle');
+  if (toggle) {
+    toggle.textContent = 'Menu · ' + titleOf(p);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.closest('.sidebar').classList.remove('nav-open');
+  }
   const q = afterQ; afterQ = []; q.forEach(f => f());
   window.scrollTo(0, keepScroll ? y : 0);
 }
@@ -862,7 +883,7 @@ function pgProdMonitor() {
 }
 
 function pgAiOps() {
-  let html = pageHead('AI operational monitoring', 'Process abnormalities, potential bottlenecks and visual alerts detected from available machine and camera data');
+  let html = pageHead('AI operational monitoring', 'Process abnormalities, potential bottlenecks and visual alerts. Simulated detections: no live PLC or camera feed is connected.');
   html += `<div class="grid g3">${['Abnormality', 'Bottleneck', 'Visual'].map(t => kpi(t === 'Visual' ? 'Visual detections' : t === 'Bottleneck' ? 'Potential bottlenecks' : 'Abnormalities', DB.aiOps.filter(a => a.type === t).length, 'Active now')).join('')}</div>`;
   html += card('Detections', `<div class="list">${DB.aiOps.map((a, i) => `<div class="item">
       <div class="grow"><div class="row">${badge(a.type)}<span class="t">${h(a.line)}</span></div>
@@ -950,17 +971,38 @@ const STOP = ['what', 'the', 'when', 'how', 'for', 'and', 'with', 'about', 'does
 function pgChatbot() {
   if (!STATE.chat.length) STATE.chat = [{ who: 'bot', html: '<p>Hi. I can find work instructions and information about active alerts. Ask a question or pick a suggestion below.</p>' }];
   const sug = ['What to do when the line stops?', 'Alerts on Body Weld 2', 'How do I verify torque tools?', 'Shift start checklist'];
-  return pageHead('AI chatbot', 'Search work instructions and alert information. Rule-based demo assistant.') +
+  return pageHead('AI chatbot', 'Asks Haiku (Takumi Copilot) using the work instructions and active alerts. Falls back to keyword matching when the agent is offline.') +
     `<div class="card chat"><div class="chat-log" id="chatLog">${STATE.chat.map(c => `<div class="msg ${c.who}">${c.html}</div>`).join('')}</div>
       <div class="chat-sug">${sug.map(s => `<button class="btn sm" onclick="askBot(${h(js(s))})">${h(s)}</button>`).join('')}</div>
       <div class="chat-in"><input id="chatQ" placeholder="Ask about a work instruction or an alert" onkeydown="if(event.key==='Enter')askBot()"><button class="btn primary" onclick="askBot()">Send</button></div></div>`;
 }
 function askBot(q) {
-  q = (q || val('chatQ')).trim(); if (!q) return;
-  STATE.chat.push({ who: 'user', html: h(q) }, { who: 'bot', html: botAnswer(q) });
+  q = (q || val('chatQ')).trim(); if (!q || STATE.chatBusy) return;
+  const rule = botAnswer(q);
+  STATE.chat.push({ who: 'user', html: h(q) }, { who: 'bot', html: '<p class="small muted">Thinking…</p>' });
+  STATE.chatBusy = true;
   refresh();
   const log = $('#chatLog'); if (log) log.scrollTop = log.scrollHeight;
+  botLive(q, rule).then(res => {
+    const last = STATE.chat[STATE.chat.length - 1];
+    last.html = res.live
+      ? '<p class="small muted">Answered by Takumi Copilot (Haiku)</p><p>' + h(res.text).replace(/\n/g, '<br>') + '</p>'
+      : '<p class="small muted">Stored-data answer (Haiku offline)</p>' + rule;
+    STATE.chatBusy = false;
+    refresh();
+    const l2 = $('#chatLog'); if (l2) l2.scrollTop = l2.scrollHeight;
+  });
   const i = $('#chatQ'); if (i) i.focus();
+}
+/* Sends the question plus the keyword-matched factory data to the Worker. Haiku answers only from that data. */
+function botLive(q, rule) {
+  const d = document.createElement('div'); d.innerHTML = rule;
+  const ctx = d.textContent.replace(/\s+/g, ' ').trim().slice(0, 1200);
+  const message = 'Operator question: ' + q + '\n\nFactory data matched to the question (use only this, and say if it does not answer the question):\n' + (ctx || 'No matching work instruction or alert.');
+  return fetch('/api/agents/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ agent: 's2', message: message, history: [] }) })
+    .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || r.statusText); return j; }))
+    .then(j => j.live ? { live: true, text: j.reply } : { live: false })
+    .catch(() => ({ live: false }));
 }
 function botAnswer(q) {
   const words = q.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2 && !STOP.includes(w)).map(w => w.replace(/(ing|s)$/, ''));

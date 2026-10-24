@@ -9,11 +9,24 @@ export const MUTABLE_KEYS = [
   'aiRecs', 'materialFlow', 'knowledge', 'kaizen', 'audit'
 ];
 
-function fmtDate(d, tz, opts) {
-  return new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: tz }, opts)).format(d);
+// Intl.DateTimeFormat construction is the expensive part (~1 ms each on Workers).
+// Cache one formatter per locale/zone/options instead of rebuilding it per call.
+const dtfCache = new Map();
+function dtf(locale, tz, opts) {
+  const key = locale + '|' + tz + '|' + JSON.stringify(opts || {});
+  let f = dtfCache.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, Object.assign({ timeZone: tz }, opts));
+    dtfCache.set(key, f);
+  }
+  return f;
 }
+function fmtDate(d, tz, opts) {
+  return dtf('en-GB', tz, opts).format(d);
+}
+const ISO_OPTS = { year: 'numeric', month: '2-digit', day: '2-digit' };
 function isoDate(d, tz) {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+  return dtf('en-CA', tz, ISO_OPTS).format(d);
 }
 export function ago_(minutes) {
   return new Date(Date.now() - minutes * 60000).toISOString();
