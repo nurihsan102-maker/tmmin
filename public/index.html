@@ -883,7 +883,7 @@ function pgProdMonitor() {
 }
 
 function pgAiOps() {
-  let html = pageHead('AI operational monitoring', 'Process abnormalities, potential bottlenecks and visual alerts detected from available machine and camera data');
+  let html = pageHead('AI operational monitoring', 'Process abnormalities, potential bottlenecks and visual alerts. Simulated detections: no live PLC or camera feed is connected.');
   html += `<div class="grid g3">${['Abnormality', 'Bottleneck', 'Visual'].map(t => kpi(t === 'Visual' ? 'Visual detections' : t === 'Bottleneck' ? 'Potential bottlenecks' : 'Abnormalities', DB.aiOps.filter(a => a.type === t).length, 'Active now')).join('')}</div>`;
   html += card('Detections', `<div class="list">${DB.aiOps.map((a, i) => `<div class="item">
       <div class="grow"><div class="row">${badge(a.type)}<span class="t">${h(a.line)}</span></div>
@@ -971,17 +971,38 @@ const STOP = ['what', 'the', 'when', 'how', 'for', 'and', 'with', 'about', 'does
 function pgChatbot() {
   if (!STATE.chat.length) STATE.chat = [{ who: 'bot', html: '<p>Hi. I can find work instructions and information about active alerts. Ask a question or pick a suggestion below.</p>' }];
   const sug = ['What to do when the line stops?', 'Alerts on Body Weld 2', 'How do I verify torque tools?', 'Shift start checklist'];
-  return pageHead('AI chatbot', 'Search work instructions and alert information. Rule-based demo assistant.') +
+  return pageHead('AI chatbot', 'Asks Haiku (Takumi Copilot) using the work instructions and active alerts. Falls back to keyword matching when the agent is offline.') +
     `<div class="card chat"><div class="chat-log" id="chatLog">${STATE.chat.map(c => `<div class="msg ${c.who}">${c.html}</div>`).join('')}</div>
       <div class="chat-sug">${sug.map(s => `<button class="btn sm" onclick="askBot(${h(js(s))})">${h(s)}</button>`).join('')}</div>
       <div class="chat-in"><input id="chatQ" placeholder="Ask about a work instruction or an alert" onkeydown="if(event.key==='Enter')askBot()"><button class="btn primary" onclick="askBot()">Send</button></div></div>`;
 }
 function askBot(q) {
-  q = (q || val('chatQ')).trim(); if (!q) return;
-  STATE.chat.push({ who: 'user', html: h(q) }, { who: 'bot', html: botAnswer(q) });
+  q = (q || val('chatQ')).trim(); if (!q || STATE.chatBusy) return;
+  const rule = botAnswer(q);
+  STATE.chat.push({ who: 'user', html: h(q) }, { who: 'bot', html: '<p class="small muted">Thinking…</p>' });
+  STATE.chatBusy = true;
   refresh();
   const log = $('#chatLog'); if (log) log.scrollTop = log.scrollHeight;
+  botLive(q, rule).then(res => {
+    const last = STATE.chat[STATE.chat.length - 1];
+    last.html = res.live
+      ? '<p class="small muted">Answered by Takumi Copilot (Haiku)</p><p>' + h(res.text).replace(/\n/g, '<br>') + '</p>'
+      : '<p class="small muted">Stored-data answer (Haiku offline)</p>' + rule;
+    STATE.chatBusy = false;
+    refresh();
+    const l2 = $('#chatLog'); if (l2) l2.scrollTop = l2.scrollHeight;
+  });
   const i = $('#chatQ'); if (i) i.focus();
+}
+/* Sends the question plus the keyword-matched factory data to the Worker. Haiku answers only from that data. */
+function botLive(q, rule) {
+  const d = document.createElement('div'); d.innerHTML = rule;
+  const ctx = d.textContent.replace(/\s+/g, ' ').trim().slice(0, 1200);
+  const message = 'Operator question: ' + q + '\n\nFactory data matched to the question (use only this, and say if it does not answer the question):\n' + (ctx || 'No matching work instruction or alert.');
+  return fetch('/api/agents/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ agent: 's2', message: message, history: [] }) })
+    .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || r.statusText); return j; }))
+    .then(j => j.live ? { live: true, text: j.reply } : { live: false })
+    .catch(() => ({ live: false }));
 }
 function botAnswer(q) {
   const words = q.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2 && !STOP.includes(w)).map(w => w.replace(/(ing|s)$/, ''));
